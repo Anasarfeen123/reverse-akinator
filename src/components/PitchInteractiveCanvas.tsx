@@ -13,6 +13,10 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
     
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // Attach pointer listeners to the canvas's parent (the clickable button)
+    // so that a plain tap starts the game while dragging still moves the ball.
+    const surface = canvas.parentElement ?? canvas;
     
     let animationFrameId: number;
     let hasScored = false;
@@ -90,11 +94,11 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
       ball.isDragging = false;
     };
 
-    canvas.addEventListener('mousedown', handlePointerDown);
-    canvas.addEventListener('mousemove', handlePointerMove);
+    surface.addEventListener('mousedown', handlePointerDown);
+    surface.addEventListener('mousemove', handlePointerMove);
     window.addEventListener('mouseup', handlePointerUp);
-    canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handlePointerMove(e); }, { passive: false });
+    surface.addEventListener('touchstart', handlePointerDown, { passive: false });
+    surface.addEventListener('touchmove', (e) => { e.preventDefault(); handlePointerMove(e); }, { passive: false });
     window.addEventListener('touchend', handlePointerUp);
 
     const drawGlowingNet = () => {
@@ -279,11 +283,11 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', resizeCanvas);
-      canvas.removeEventListener('mousedown', handlePointerDown);
-      canvas.removeEventListener('mousemove', handlePointerMove);
+      surface.removeEventListener('mousedown', handlePointerDown);
+      surface.removeEventListener('mousemove', handlePointerMove);
       window.removeEventListener('mouseup', handlePointerUp);
-      canvas.removeEventListener('touchstart', handlePointerDown);
-      canvas.removeEventListener('touchmove', handlePointerMove);
+      surface.removeEventListener('touchstart', handlePointerDown);
+      surface.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
     };
   }, [onGoalScored]);
@@ -291,7 +295,7 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
   return (
     <canvas 
       ref={canvasRef} 
-      className="absolute inset-0 z-20 cursor-grab active:cursor-grabbing touch-none"
+      className="absolute inset-0 z-20 pointer-events-none touch-none"
     />
   );
 };

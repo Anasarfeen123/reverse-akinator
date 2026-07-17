@@ -12,8 +12,8 @@
 
 import express from 'express';
 import cors    from 'cors';
-import { pickRandomPlayer, getPlayerContext } from './playerPool.js';
-import { answerQuestion, checkGuess, MODEL }  from './ollamaService.js';
+import { pickRandomPlayer, getPlayerContext, GUESSING_POOL } from './playerPool.js';
+import { answerQuestion, checkGuess, MODEL, modelReady, listOllamaModels }  from './ollamaService.js';
 
 const app  = express();
 const PORT = 3001;
@@ -122,13 +122,18 @@ app.post('/api/games/:matchId/guess', async (req, res) => {
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await modelReady; // reflect the actually-resolved model in the banner
   console.log('');
   console.log('═══════════════════════════════════════════════');
   console.log('  Reverse Akinator backend running');
   console.log(`  http://localhost:${PORT}`);
   console.log(`  Model  : ${MODEL}`);
-  console.log('  RAG    : 14-player knowledge base loaded');
+  console.log(`  RAG    : ${GUESSING_POOL.length}-player knowledge base loaded`);
+  if (MODEL === 'qwen2.5-coder:7b' && !(await listOllamaModels?.() ?? []).includes(MODEL)) {
+    console.log('  WARNING: preferred model not found — using a fallback.');
+    console.log('  Run: ollama pull qwen2.5-coder:7b  for best results.');
+  }
   console.log('═══════════════════════════════════════════════');
   console.log('');
 });

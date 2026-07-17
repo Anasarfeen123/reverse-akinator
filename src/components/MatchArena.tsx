@@ -35,7 +35,8 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
   const [isGuessMode, setIsGuessMode] = useState(false);
   const [guessCount, setGuessCount] = useState(0);
   const [secretPlayer, setSecretPlayer] = useState<string | undefined>(undefined);
-  
+  const [error, setError] = useState<string | null>(null);
+   
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const questionCount = log.length;
@@ -91,6 +92,7 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
         }
       } catch (error) {
         console.error("Failed to submit guess", error);
+        setError("The referee is offline. Make sure the backend (npm run dev:all) is running, then try again.");
         setIsThinking(false);
       }
     } else {
@@ -115,6 +117,7 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
         }
       } catch (error) {
         console.error("Failed to ask question", error);
+        setError("The referee is offline. Make sure the backend (npm run dev:all) is running, then try again.");
         setIsThinking(false);
       }
     }
@@ -200,6 +203,18 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
 
       {/* Input Dock — replaced by View Result banner when game is over */}
       <div className="flex-none w-full p-4 bg-slate-900 border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-20 relative">
+        {error && (
+          <div className="max-w-4xl mx-auto mb-3 flex items-center justify-between gap-4 rounded-lg border border-rose-700 bg-rose-950/60 px-4 py-3">
+            <span className="font-sans text-sm text-rose-300">{error}</span>
+            <button
+              type="button"
+              onClick={() => setError(null)}
+              className="text-rose-300 hover:text-white text-xs uppercase tracking-wider transition-colors"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
         {isGameOver ? (
           /* ── Game Over banner ── */
           <motion.div

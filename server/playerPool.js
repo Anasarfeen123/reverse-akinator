@@ -458,10 +458,19 @@ Known for: GOAT debate with Pelé, Hand of God, 1986 World Cup, Napoli legend, d
 };
 
 /**
- * Returns a random player name from the pool.
+ * Canonical guessing pool — the secret player is ALWAYS one of these.
+ * These are the most popular, highly-recognisable FIFA / football icons
+ * (legends + modern superstars) so the human player has a fair chance.
+ * Kept in a stable, human-curated order and embedded into the LLM prompt
+ * so the model knows the exact universe of valid answers.
+ */
+export const GUESSING_POOL = Object.keys(PLAYER_POOL);
+
+/**
+ * Returns a random player name from the pool (the secret player).
  */
 export function pickRandomPlayer() {
-  const names = Object.keys(PLAYER_POOL);
+  const names = GUESSING_POOL;
   return names[Math.floor(Math.random() * names.length)];
 }
 
@@ -470,6 +479,24 @@ export function pickRandomPlayer() {
  */
 export function getPlayerContext(playerName) {
   return PLAYER_POOL[playerName]?.context || null;
+}
+
+/**
+ * Normalises a human guess against the pool (lenient: nicknames, partial
+ * names, spelling mistakes) so the model only ever compares against the
+ * real roster, never free-form text.
+ */
+export function matchPoolName(guess) {
+  const g = guess.trim().toLowerCase();
+  if (!g) return null;
+  for (const name of GUESSING_POOL) {
+    const lower = name.toLowerCase();
+    if (lower === g) return name;
+    // Partial match on first/last token (e.g. "Messi", "Haaland", "R9")
+    const tokens = lower.split(/\s+/);
+    if (tokens.some(t => t.length > 2 && g.includes(t))) return name;
+  }
+  return null;
 }
 
 export { PLAYER_POOL };

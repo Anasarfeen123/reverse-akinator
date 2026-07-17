@@ -3,7 +3,7 @@ import { matchdayReducer, INITIAL_MATCHDAY_STATE } from './MatchdayState';
 import type { MatchdayAction } from './MatchdayState';
 import { aiReferee } from '../services/aiReferee';
 
-const NETWORK_TIMEOUT_MS = 5000;
+const NETWORK_TIMEOUT_MS = 120000;
 const IDLE_TIMEOUT_MS = 90000;
 
 export function useMatchdayEngine() {

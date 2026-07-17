@@ -14,8 +14,11 @@ function App() {
   const [matchResult, setMatchResult] = useState<{ isWin: boolean; actualPlayer?: string } | null>(null);
   // Controls whether we're looking at the result card or the chat log in FULL_TIME
   const [resultView, setResultView] = useState<ResultView>('result');
+  const [startError, setStartError] = useState<string | null>(null);
 
   const handleGoalScored = async () => {
+    if (phase === 'STARTING_MATCH') return;
+    setStartError(null);
     setPhase('STARTING_MATCH');
     try {
       const response = await startGame();
@@ -23,6 +26,9 @@ function App() {
       setPhase('MATCH');
     } catch (error) {
       console.error('Failed to start match', error);
+      setStartError(
+        'Could not reach the game server. Make sure the backend is running (npm run dev:all).'
+      );
       setPhase('KICKOFF');
     }
   };
@@ -64,9 +70,14 @@ function App() {
               <img src="/player_7.png" alt="Number 7" className="w-full h-full object-contain [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
             </motion.div>
 
-            <div className="absolute inset-0 z-20 pointer-events-auto">
+            <button
+              type="button"
+              onClick={handleGoalScored}
+              aria-label="Start game"
+              className="absolute inset-0 z-20 pointer-events-auto cursor-pointer bg-transparent"
+            >
               <PitchInteractiveCanvas onGoalScored={handleGoalScored} />
-            </div>
+            </button>
 
             <motion.div
               initial={{ opacity: 0, filter: 'blur(20px)', y: -50 }}
@@ -88,8 +99,13 @@ function App() {
               >
                 <div className="w-12 h-[1px] bg-stadium-gold/50" />
                 <p className="font-sans text-sm md:text-lg text-slate-400 font-light tracking-[0.3em] uppercase">
-                  Strike the ball to begin
+                  Tap anywhere or strike the ball to begin
                 </p>
+                {startError && (
+                  <p className="mt-4 max-w-md px-6 text-center font-sans text-sm text-rose-400">
+                    {startError}
+                  </p>
+                )}
                 <div className="w-12 h-[1px] bg-stadium-gold/50" />
               </motion.div>
             </motion.div>
