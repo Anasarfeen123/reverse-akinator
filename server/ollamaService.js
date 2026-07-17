@@ -121,7 +121,10 @@ STRICT RULES:
    Don't Know
 3. Use "Probably" / "Probably Not" for things that are partially true, uncertain, or for name/identity questions.
 4. Use "Don't Know" if the question is not answerable as yes/no or is not covered by the profile.
-5. Do NOT reveal the player's name. Do NOT add any explanation.`;
+5. Do NOT reveal the player's name. Do NOT add any explanation.
+6. If the information is NOT present, answer "I don't know."
+7. Do NOT use your own football knowledge.
+8. Never guess.`;
 
   const userMessage = `Question: "${question}"\n\nRespond with exactly one of: Yes, No, Probably, Probably Not, Don't Know`;
 
