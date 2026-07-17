@@ -1,27 +1,38 @@
 import type { AllowedAnswer } from '../types/game';
 
-// Delay helper
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const API_BASE = 'http://localhost:3001/api';
+
+// ─── Game Start ───────────────────────────────────────────────────────────────
 
 export const startGame = async () => {
-  await delay(1500);
-  return { matchId: "123", status: "ready", secretPlayerPicked: true };
+  const response = await fetch(`${API_BASE}/games`, { method: 'POST' });
+  if (!response.ok) throw new Error(`startGame failed: ${response.status}`);
+  const data = await response.json();
+  return data as { matchId: string; status: string; secretPlayerPicked: boolean };
 };
+
+// ─── Ask a Question ───────────────────────────────────────────────────────────
 
 export const askQuestion = async (matchId: string, questionText: string) => {
-  await delay(1500);
-  const badges: AllowedAnswer[] = ['Yes', 'No', 'Probably', 'Probably Not', "Don't Know"];
-  const randomBadge = badges[Math.floor(Math.random() * badges.length)];
-  return { status: "success", ai_badge: randomBadge };
+  const response = await fetch(`${API_BASE}/games/${matchId}/question`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: questionText }),
+  });
+  if (!response.ok) throw new Error(`askQuestion failed: ${response.status}`);
+  const data = await response.json();
+  return data as { status: string; ai_badge: AllowedAnswer; secretPlayer: string };
 };
 
+// ─── Submit a Guess ───────────────────────────────────────────────────────────
+
 export const submitGuess = async (matchId: string, guessedName: string) => {
-  await delay(1500);
-  // Fake logic: let's say it's true if the guess is "Messi" (case insensitive)
-  const isCorrect = guessedName.trim().toLowerCase() === 'messi'; 
-  return { 
-    status: "success", 
-    isCorrect, 
-    stats: { attempts: 1 } 
-  };
+  const response = await fetch(`${API_BASE}/games/${matchId}/guess`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ guess: guessedName }),
+  });
+  if (!response.ok) throw new Error(`submitGuess failed: ${response.status}`);
+  const data = await response.json();
+  return data as { status: string; isCorrect: boolean; secretPlayer: string; stats: { attempts: number } };
 };

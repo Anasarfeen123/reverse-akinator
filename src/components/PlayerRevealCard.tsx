@@ -6,9 +6,10 @@ interface PlayerRevealCardProps {
   playerName: string;
   isWin: boolean;
   onReset: () => void;
+  onBackToChat?: () => void;
 }
 
-export const PlayerRevealCard: React.FC<PlayerRevealCardProps> = ({ playerName, isWin, onReset }) => {
+export const PlayerRevealCard: React.FC<PlayerRevealCardProps> = ({ playerName, isWin, onReset, onBackToChat }) => {
   const [typedName, setTypedName] = useState('');
 
   useEffect(() => {
@@ -71,18 +72,36 @@ export const PlayerRevealCard: React.FC<PlayerRevealCardProps> = ({ playerName, 
 
       <div className="mt-6 sm:mt-8 text-center">
         <h3 className="font-display text-2xl sm:text-4xl font-bold uppercase text-white mb-4 sm:mb-6 drop-shadow-md">
-          {isWin ? "You nailed it!" : "Game Over"}
+          {isWin ? 'You nailed it!' : 'Game Over'}
         </h3>
-        
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onReset}
-          className="flex items-center gap-3 mx-auto px-6 py-3 sm:px-8 sm:py-4 bg-pitch-bright text-floodlight font-display text-xl sm:text-2xl uppercase font-bold rounded-lg shadow-[0_0_30px_rgba(31,162,74,0.3)] border-b-4 border-pitch-deep active:border-b-0 active:translate-y-1 transition-all"
-        >
-          <RotateCcw className="w-6 h-6" />
-          Retry
-        </motion.button>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          {/* Back to Chat */}
+          {onBackToChat && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onBackToChat}
+              className="flex items-center gap-3 px-6 py-3 sm:px-8 sm:py-4 bg-slate-700 text-slate-200 font-display text-xl sm:text-2xl uppercase font-bold rounded-lg shadow-md border-b-4 border-slate-800 active:border-b-0 active:translate-y-1 transition-all hover:bg-slate-600"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Chat Log
+            </motion.button>
+          )}
+
+          {/* Play Again */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onReset}
+            className="flex items-center gap-3 px-6 py-3 sm:px-8 sm:py-4 bg-pitch-bright text-floodlight font-display text-xl sm:text-2xl uppercase font-bold rounded-lg shadow-[0_0_30px_rgba(31,162,74,0.3)] border-b-4 border-pitch-deep active:border-b-0 active:translate-y-1 transition-all"
+          >
+            <RotateCcw className="w-6 h-6" />
+            Retry
+          </motion.button>
+        </div>
       </div>
     </motion.div>
   );

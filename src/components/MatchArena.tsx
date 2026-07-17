@@ -6,7 +6,9 @@ import type { AllowedAnswer } from '../types/game';
 
 interface MatchArenaProps {
   matchId: string;
-  onMatchEnd: (result: { isWin: boolean; guessedPlayer?: string }) => void;
+  onMatchEnd: (result: { isWin: boolean; actualPlayer?: string }) => void;
+  isGameOver?: boolean;
+  onViewResult?: () => void;
 }
 
 interface LogEntry {
@@ -26,12 +28,13 @@ const getBadgeColorClasses = (answer?: AllowedAnswer | null) => {
   }
 };
 
-export const MatchArena = ({ matchId, onMatchEnd }: MatchArenaProps) => {
+export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResult }: MatchArenaProps) => {
   const [log, setLog] = useState<LogEntry[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [isGuessMode, setIsGuessMode] = useState(false);
   const [guessCount, setGuessCount] = useState(0);
+  const [secretPlayer, setSecretPlayer] = useState<string | undefined>(undefined);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   
@@ -64,20 +67,22 @@ export const MatchArena = ({ matchId, onMatchEnd }: MatchArenaProps) => {
     if (isGuessMode) {
       try {
         const response = await submitGuess(matchId, trimmed);
+        const actual = response.secretPlayer || secretPlayer;
         if (response.isCorrect) {
-          onMatchEnd({ isWin: true, guessedPlayer: trimmed });
+          onMatchEnd({ isWin: true, actualPlayer: actual });
         } else {
           // Wrong guess!
           const newGuessCount = guessCount + 1;
           setGuessCount(newGuessCount);
-          
+          if (response.secretPlayer) setSecretPlayer(response.secretPlayer);
+
           // Log it as a question that was answered with NO
           const entryId = `q-${Date.now()}`;
           setLog(prev => [...prev, { id: entryId, question: `Is it ${trimmed}?`, answer: 'No' }]);
-          
+
           if (newGuessCount >= MAX_GUESSES || questionCount + 1 >= MAX_QUESTIONS) {
             setTimeout(() => {
-              onMatchEnd({ isWin: false });
+              onMatchEnd({ isWin: false, actualPlayer: actual });
             }, 2000);
           } else {
             setIsThinking(false);
@@ -92,17 +97,18 @@ export const MatchArena = ({ matchId, onMatchEnd }: MatchArenaProps) => {
       // It's a normal question
       const entryId = `q-${Date.now()}`;
       setLog(prev => [...prev, { id: entryId, question: trimmed, answer: null }]);
-      
+
       try {
         const response = await askQuestion(matchId, trimmed);
-        setLog(prev => prev.map(entry => 
+        if (response.secretPlayer) setSecretPlayer(response.secretPlayer);
+        setLog(prev => prev.map(entry =>
           entry.id === entryId ? { ...entry, answer: response.ai_badge as AllowedAnswer } : entry
         ));
-        
+
         // Check if this was the last allowed question
         if (questionCount + 1 >= MAX_QUESTIONS) {
           setTimeout(() => {
-             onMatchEnd({ isWin: false });
+            onMatchEnd({ isWin: false, actualPlayer: response.secretPlayer || secretPlayer });
           }, 2000);
         } else {
           setIsThinking(false);
@@ -192,9 +198,33 @@ export const MatchArena = ({ matchId, onMatchEnd }: MatchArenaProps) => {
         )}
       </div>
 
-      {/* Input Dock */}
+      {/* Input Dock — replaced by View Result banner when game is over */}
       <div className="flex-none w-full p-4 bg-slate-900 border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-20 relative">
-        <div className="max-w-4xl mx-auto flex flex-col gap-3">
+        {isGameOver ? (
+          /* ── Game Over banner ── */
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto flex items-center justify-between gap-4 px-2"
+          >
+            <span className="font-display text-slate-400 text-sm uppercase tracking-widest">
+              This match has ended
+            </span>
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={onViewResult}
+              className="flex items-center gap-2 px-6 py-3 bg-stadium-gold text-slate-900 font-display font-bold text-lg uppercase rounded-lg border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+              View Result
+            </motion.button>
+          </motion.div>
+        ) : (
+          /* ── Normal input dock ── */
+          <div className="max-w-4xl mx-auto flex flex-col gap-3">
           
           <div className="flex items-center justify-between px-2">
             <div className="flex gap-4">
@@ -215,9 +245,9 @@ export const MatchArena = ({ matchId, onMatchEnd }: MatchArenaProps) => {
                 Make Guess
               </button>
             </div>
-            <button 
+            <button
               type="button"
-              onClick={() => onMatchEnd({ isWin: false })}
+              onClick={() => onMatchEnd({ isWin: false, actualPlayer: secretPlayer })}
               disabled={isThinking}
               className="text-slate-500 hover:text-rose-400 text-xs uppercase tracking-wider transition-colors"
             >
@@ -253,7 +283,8 @@ export const MatchArena = ({ matchId, onMatchEnd }: MatchArenaProps) => {
             </div>
           </form>
 
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
