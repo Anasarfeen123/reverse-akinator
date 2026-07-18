@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { HelpCircle, AlertCircle, Loader2, Mic } from 'lucide-react';
 import { askQuestion, submitGuess } from '../services/api';
 import type { AllowedAnswer } from '../types/game';
+import { GenieCharacter } from './GenieCharacter';
+import { MicLogo } from './MicLogo';
 
 interface MatchArenaProps {
   matchId: string;
@@ -35,12 +37,19 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
   const [isGuessMode, setIsGuessMode] = useState(false);
   const [guessCount, setGuessCount] = useState(0);
   const [secretPlayer, setSecretPlayer] = useState<string | undefined>(undefined);
+  const [genieState, setGenieState] = useState<'idle' | 'thinking' | 'confident'>('idle');
   
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const questionCount = log.length;
   const MAX_QUESTIONS = 20;
   const MAX_GUESSES = 3;
+
+  useEffect(() => {
+    if (inputValue && genieState === 'confident') {
+      setGenieState('idle');
+    }
+  }, [inputValue, genieState]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -62,6 +71,7 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
     if (!trimmed || isThinking || questionCount >= MAX_QUESTIONS || guessCount >= MAX_GUESSES) return;
 
     setIsThinking(true);
+    setGenieState('thinking');
     setInputValue('');
 
     if (isGuessMode) {
@@ -86,12 +96,14 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
             }, 2000);
           } else {
             setIsThinking(false);
+            setGenieState('confident');
             setIsGuessMode(false); // flip back to ask mode for convenience
           }
         }
       } catch (error) {
         console.error("Failed to submit guess", error);
         setIsThinking(false);
+        setGenieState('idle');
       }
     } else {
       // It's a normal question
@@ -112,10 +124,15 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
           }, 2000);
         } else {
           setIsThinking(false);
+          setGenieState('confident');
         }
       } catch (error) {
         console.error("Failed to ask question", error);
+        setLog(prev => prev.map(entry =>
+          entry.id === entryId ? { ...entry, answer: "Don't Know" as AllowedAnswer } : entry
+        ));
         setIsThinking(false);
+        setGenieState('idle');
       }
     }
   };
@@ -124,9 +141,12 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
     <div className="w-full h-full flex flex-col bg-slate-950 font-sans relative">
       {/* Header */}
       <header className="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center z-10 backdrop-blur-md">
-        <h1 className="font-display text-2xl uppercase tracking-widest text-stadium-gold font-bold">
-          Match Arena
-        </h1>
+        <div className="flex items-center gap-3">
+          <MicLogo className="w-8 h-8 md:w-10 md:h-10 drop-shadow-[0_0_10px_rgba(234,179,8,0.2)]" />
+          <h1 className="font-display text-2xl uppercase tracking-widest text-stadium-gold font-bold">
+            Match Arena
+          </h1>
+        </div>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <span className="text-slate-400 text-sm uppercase hidden md:inline">Questions</span>
@@ -144,11 +164,18 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
         </div>
       </header>
 
-      {/* Scrollable Chat Log */}
-      <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-6 bg-slate-950"
-      >
+      {/* Scrollable Chat Log & Genie Layout */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        {/* Genie Character Side Panel */}
+        <div className="h-64 md:h-full md:w-1/3 border-b md:border-b-0 md:border-r border-slate-800 bg-slate-900/40 shrink-0">
+          <GenieCharacter state={genieState} />
+        </div>
+
+        {/* Chat Log */}
+        <div 
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-6 bg-slate-950"
+        >
         {log.length === 0 ? (
           <div className="flex-grow flex items-center justify-center text-slate-500 font-sans italic text-lg">
             Awaiting kickoff... Ask your first question!
@@ -172,30 +199,27 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8, x: -20 }}
                     animate={{ opacity: 1, scale: 1, x: 0 }}
-                    className="self-start"
+                    className="self-start flex items-center gap-4"
                   >
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-stadium-gold shadow-[0_0_10px_rgba(212,175,55,0.5)] shrink-0 relative">
+                      <div className="absolute inset-0 bg-slate-900" style={{
+                        backgroundImage: "url('/mic_lamp_genie_black_jersey.jpg')",
+                        backgroundSize: '300% auto',
+                        backgroundPosition: '0% 20%'
+                      }} />
+                    </div>
                     <div className={`px-6 py-3 rounded-xl border-2 ${getBadgeColorClasses(entry.answer)}`}>
                       <span className="font-display font-black text-2xl uppercase tracking-wider drop-shadow-md">
                         {entry.answer}
                       </span>
                     </div>
                   </motion.div>
-                ) : (
-                  <motion.div
-                    key="thinking"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="self-start text-slate-500 italic flex items-center gap-2 px-4 py-2"
-                  >
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    VAR Checking...
-                  </motion.div>
-                )}
+                ) : null}
               </AnimatePresence>
             </motion.div>
           ))
         )}
+      </div>
       </div>
 
       {/* Input Dock — replaced by View Result banner when game is over */}
@@ -265,7 +289,15 @@ export const MatchArena = ({ matchId, onMatchEnd, isGameOver = false, onViewResu
               className="w-full bg-slate-950/50 border-2 border-slate-700 rounded-xl px-4 py-4 pr-32 text-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-pitch-grass-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             />
             
-            <div className="absolute right-2 flex items-center">
+            <div className="absolute right-2 flex items-center gap-1">
+              <button
+                type="button"
+                className="p-3 text-slate-500 hover:text-pitch-grass-secondary transition-colors disabled:opacity-50"
+                disabled={isThinking || questionCount >= MAX_QUESTIONS || (isGuessMode && guessCount >= MAX_GUESSES)}
+                title="Voice Input (Coming Soon)"
+              >
+                <Mic className="w-6 h-6" />
+              </button>
               {isThinking ? (
                 <div className="flex items-center gap-2 px-4 py-2 text-stadium-gold">
                   <Loader2 className="w-5 h-5 animate-spin" />

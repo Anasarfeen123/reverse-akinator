@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { PitchInteractiveCanvas } from './components/PitchInteractiveCanvas';
 import { MatchArena } from './components/MatchArena';
 import { PlayerRevealCard } from './components/PlayerRevealCard';
+import { MicLogo } from './components/MicLogo';
 import { startGame } from './services/api';
 
 type GamePhase = 'KICKOFF' | 'STARTING_MATCH' | 'MATCH' | 'FULL_TIME';
@@ -46,22 +47,14 @@ function App() {
       case 'KICKOFF':
         return (
           <motion.div key="kickoff" className="absolute inset-0 z-10 w-full h-full pointer-events-none">
-            {/* Player Art Images */}
+            {/* Genie Art Image */}
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 0.4, x: 0 }}
-              transition={{ duration: 2, ease: 'easeOut' }}
-              className="absolute left-[-5%] bottom-[-5%] w-[45vw] max-w-[600px] aspect-square pointer-events-none z-10 mix-blend-screen opacity-40"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 0.8, scale: 1 }}
+              transition={{ duration: 2.5, ease: 'easeOut' }}
+              className="absolute left-1/2 bottom-[10%] -translate-x-1/2 w-[70vw] max-w-[800px] aspect-square pointer-events-none z-10 mix-blend-screen opacity-60 relative"
             >
-              <img src="/player_10.png" alt="Number 10" className="w-full h-full object-contain [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 0.4, x: 0 }}
-              transition={{ duration: 2, ease: 'easeOut' }}
-              className="absolute right-[-5%] bottom-[-5%] w-[45vw] max-w-[600px] aspect-square pointer-events-none z-10 mix-blend-screen opacity-40"
-            >
-              <img src="/player_7.png" alt="Number 7" className="w-full h-full object-contain [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
+              <img src="/football_genie.jpg" alt="Football Genie" className="w-full h-full object-contain [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
             </motion.div>
 
             <div className="absolute inset-0 z-20 pointer-events-auto">
@@ -74,6 +67,11 @@ function App() {
               transition={{ duration: 1.5, ease: 'easeOut' }}
               className="absolute inset-0 z-30 flex flex-col items-center justify-start pt-24 md:pt-32 pointer-events-none"
             >
+              <div className="absolute top-4 left-4 md:top-6 md:left-6 z-50 flex items-center gap-3">
+                <MicLogo className="w-10 h-10 md:w-12 md:h-12 drop-shadow-lg" />
+                <span className="font-display font-bold text-lg md:text-xl uppercase tracking-widest text-slate-300">MIC SHOWDOWN</span>
+              </div>
+
               <h1 className="font-display text-[6rem] md:text-[10rem] leading-none font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-500 tracking-tighter uppercase drop-shadow-2xl">
                 REVERSE
               </h1>

@@ -54,6 +54,12 @@ function httpPost(path, body) {
       });
     });
 
+    // Timeout if ollama is busy or not running
+    req.setTimeout(5000, () => {
+      req.destroy();
+      reject(new Error('Ollama connection timed out.'));
+    });
+
     req.on('error', reject);
     req.write(payload);
     req.end();
@@ -64,19 +70,24 @@ function httpPost(path, body) {
  * Sends a chat request to Ollama and returns the raw text response.
  */
 async function ollamaChat(systemPrompt, userMessage) {
-  const data = await httpPost('/api/chat', {
-    model: MODEL,
-    stream: false,
-    options: {
-      temperature: 0.1,
-      num_predict: 32,   // Slightly higher to avoid mid-word cutoffs
-    },
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user',   content: userMessage  },
-    ],
-  });
-  return data.message?.content?.trim() || '';
+  try {
+    const data = await httpPost('/api/chat', {
+      model: MODEL,
+      stream: false,
+      options: {
+        temperature: 0.1,
+        num_predict: 32,
+      },
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user',   content: userMessage  },
+      ],
+    });
+    return data.message?.content?.trim() || '';
+  } catch (err) {
+    console.error(`Ollama chat failed: ${err.message}. Using fallback.`);
+    throw err;
+  }
 }
 
 /**
@@ -128,7 +139,77 @@ STRICT RULES:
 
   const userMessage = `Question: "${question}"\n\nRespond with exactly one of: Yes, No, Probably, Probably Not, Don't Know`;
 
-  const raw = await ollamaChat(systemPrompt, userMessage);
+  let raw;
+  try {
+    raw = await ollamaChat(systemPrompt, userMessage);
+  } catch (e) {
+    console.warn("Using fallback answer because Ollama failed.");
+    // Smart Fallback: parse playerContext for clues
+    const q = question.toLowerCase();
+    const c = playerContext.toLowerCase();
+    
+    let fallbackAnswer = "Don't Know";
+    if (q.includes('retired') || q.includes('play anymore')) {
+      fallbackAnswer = c.includes('retired') || c.includes('deceased') ? 'Yes' : 'No';
+    } else if (q.includes('active') || q.includes('currently play')) {
+      fallbackAnswer = c.includes('active') || !c.includes('retired') ? 'Yes' : 'No';
+    } else if (q.includes('striker') || q.includes('forward') || q.includes('attacker')) {
+      fallbackAnswer = (c.includes('striker') || c.includes('forward') || c.includes('winger')) ? 'Yes' : 'No';
+    } else if (q.includes('midfielder')) {
+      fallbackAnswer = c.includes('midfielder') ? 'Yes' : 'No';
+    } else if (q.includes('defender') || q.includes('goalkeeper')) {
+      fallbackAnswer = (c.includes('defender') || c.includes('goalkeeper')) ? 'Yes' : 'No';
+    } else if (q.includes('world cup')) {
+      if (q.includes('won') || q.includes('winner') || q.includes('win') || q.includes('times')) {
+        fallbackAnswer = (c.includes('world cup') && !c.includes('never won world cup')) ? 'Yes' : 'No';
+      } else {
+        fallbackAnswer = c.includes('world cup') ? 'Yes' : 'No';
+      }
+    } else if (q.includes('england') || q.includes('english')) {
+      if (q.includes('from') || q.includes('born') || q.includes('country') || q.includes('nationality') || q.includes('national team')) {
+        fallbackAnswer = c.includes('nationality: english') ? 'Yes' : 'No';
+      } else {
+        fallbackAnswer = c.includes('premier league') || c.includes('england') ? 'Yes' : 'No';
+      }
+    } else if (q.includes('spain') || q.includes('spanish')) {
+      if (q.includes('from') || q.includes('born') || q.includes('country') || q.includes('nationality') || q.includes('national team')) {
+        fallbackAnswer = c.includes('nationality: spanish') ? 'Yes' : 'No';
+      } else {
+        fallbackAnswer = c.includes('la liga') || c.includes('spain') ? 'Yes' : 'No';
+      }
+    } else if (q.includes('brazil') || q.includes('brazilian')) {
+      fallbackAnswer = c.includes('brazilian') || c.includes('brazil') ? 'Yes' : 'No';
+    } else if (q.includes('france') || q.includes('french')) {
+      fallbackAnswer = c.includes('french') || c.includes('france') ? 'Yes' : 'No';
+    } else if (q.includes('argentina') || q.includes('argentine')) {
+      fallbackAnswer = c.includes('argentine') || c.includes('argentina') ? 'Yes' : 'No';
+    } else if (q.includes('germany') || q.includes('german')) {
+      fallbackAnswer = c.includes('german') || c.includes('germany') ? 'Yes' : 'No';
+    } else if (q.includes('premier league')) {
+      fallbackAnswer = c.includes('premier league') || c.includes('arsenal') || c.includes('manchester') || c.includes('chelsea') || c.includes('liverpool') ? 'Yes' : 'No';
+    } else if (q.includes('la liga')) {
+      fallbackAnswer = c.includes('la liga') || c.includes('real madrid') || c.includes('barcelona') ? 'Yes' : 'No';
+    } else {
+      // generic keyword match
+      const words = q.replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 4 && !['does', 'play', 'have', 'with', 'player', 'country'].includes(w));
+      if (words.length > 0) {
+        fallbackAnswer = 'No';
+        for (const w of words) {
+          if (c.includes(w)) {
+            fallbackAnswer = 'Yes';
+            break;
+          }
+        }
+      }
+    }
+    
+    // Convert to Probably for name questions to match logic
+    if (nameQuestion) {
+      if (fallbackAnswer === 'Yes') return 'Probably';
+      if (fallbackAnswer === 'No') return 'Probably Not';
+    }
+    return fallbackAnswer;
+  }
 
   // Parse the response robustly
   const lower = raw.toLowerCase();
@@ -171,6 +252,12 @@ Respond with ONLY the word YES or NO.`;
 
   const userMessage = `Human's guess: "${guess}"`;
 
-  const raw = await ollamaChat(systemPrompt, userMessage);
-  return raw.trim().toUpperCase().startsWith('YES');
+  try {
+    const raw = await ollamaChat(systemPrompt, userMessage);
+    return raw.trim().toUpperCase().startsWith('YES');
+  } catch (e) {
+    console.warn("Using fallback checkGuess because Ollama failed.");
+    // Fallback: simple substring match
+    return guess.toLowerCase().includes(secretPlayer.split(' ').pop().toLowerCase());
+  }
 }
