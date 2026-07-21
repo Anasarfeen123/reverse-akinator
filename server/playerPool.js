@@ -116,6 +116,7 @@ Youth Academy: AS Bondy (2004–2011), INF Clairefontaine (2011–2013), AS Mona
 Current Club: Real Madrid (La Liga, Spain) — since July 2024 (Free transfer)
 Previous Clubs: AS Monaco (2015–2017), Paris Saint-Germain (2017–2024)
 Jersey Number: 9 (Real Madrid), 10 (France National Team)
+Major International Trophies: FIFA World Cup 2018 (France)
 Key Attributes: World-class acceleration, lethal dribbling on counterattacks, right-foot curling shots
 Known Facts: Raised in Bondy sub-district of Paris. Joined Real Madrid in summer 2024.
 `.trim()

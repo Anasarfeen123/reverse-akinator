@@ -218,6 +218,57 @@ function parseHeightValue(heightText = '') {
   return null;
 }
 
+function extractAskedCount(question) {
+  const q = normalizeText(question);
+  if (!q) return null;
+
+  const explicit = q.match(/\b(\d+)\s*(?:times?|x|world cups?|titles?)\b/);
+  if (explicit) {
+    return parseInt(explicit[1], 10);
+  }
+
+  if (/\b(twice|double)\b/.test(q)) return 2;
+  if (/\b(thrice|triple)\b/.test(q)) return 3;
+  if (/\bat least one\b/.test(q)) return 1;
+
+  const wordToNumber = {
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+  };
+
+  const countWord = q.match(/\b(one|two|three|four|five)\b/);
+  if (countWord && /\b(times?|x|world cups?|titles?)\b/.test(q)) {
+    return wordToNumber[countWord[1]] ?? null;
+  }
+
+  return null;
+}
+
+function getTrophyCount(playerContext, trophyName) {
+  const trophies = getTagValue(playerContext, 'Major International Trophies').toLowerCase();
+  if (!trophies || trophies.includes('none')) return 0;
+
+  const normalizedTarget = normalizeText(trophyName);
+  const normalizedTrophies = normalizeText(trophies);
+
+  const explicitCountMatch = normalizedTrophies.match(new RegExp(`\\b(\\d+)\\s*x\\s*(?:[^,;]*?\\b)?${escapeRegex(normalizedTarget)}\\b`));
+  if (explicitCountMatch) {
+    return parseInt(explicitCountMatch[1], 10);
+  }
+
+  const mentionMatches = normalizedTrophies.match(new RegExp(`\\b${escapeRegex(normalizedTarget)}\\b`, 'g'));
+  if (!mentionMatches) return 0;
+
+  if (/(runner up|runner-up|third place|3rd place|semi final|semifinal|finalist)/.test(normalizedTrophies) && !/won|winner|champion/.test(normalizedTrophies)) {
+    return 0;
+  }
+
+  return mentionMatches.length;
+}
+
 function extractBirthAndHometownFacts(playerContext) {
   const knownFacts = getTagValue(playerContext, 'Known Facts');
   const context = `${knownFacts} ${playerContext}`;
@@ -416,11 +467,21 @@ function evaluateFactDirectly(question, secretPlayer, playerContext) {
   }
 
   // 5. TROPHIES & BALLON D'OR
-  if (/(world cup)/i.test(qClean)) {
-    return intlTrophies.includes('world cup') ? 'Yes' : 'No';
+  if (/(world cup)/i.test(qClean) && /(won|win|winner|trophy|trophies|title|titles|champion|champions)/i.test(qClean)) {
+    const worldCupCount = getTrophyCount(playerContext, 'world cup');
+    const askedCount = extractAskedCount(qClean);
+    if (askedCount !== null) {
+      return worldCupCount >= askedCount ? 'Yes' : 'No';
+    }
+    return worldCupCount > 0 ? 'Yes' : 'No';
   }
   if (/(champions league|ucl)/i.test(qClean)) {
-    return clubTrophies.includes('champions league') ? 'Yes' : 'No';
+    const championsLeagueCount = getTrophyCount(playerContext, 'champions league');
+    const askedCount = extractAskedCount(qClean);
+    if (askedCount !== null) {
+      return championsLeagueCount >= askedCount ? 'Yes' : 'No';
+    }
+    return championsLeagueCount > 0 ? 'Yes' : 'No';
   }
   if (/(ballon d'or|ballon dor|ballon)/i.test(rawQ)) {
     const numMatch = qClean.match(/\b(\d+)\b/);

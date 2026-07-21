@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Settings, Cpu, Play, Trophy, Target, BrainCircuit, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Settings, Cpu, Play, Trophy } from 'lucide-react';
 import { PitchInteractiveCanvas } from './components/PitchInteractiveCanvas';
 import { MatchArena } from './components/MatchArena';
 import { PlayerRevealCard } from './components/PlayerRevealCard';
@@ -55,104 +55,44 @@ function App() {
         return (
           <motion.div key="kickoff" className="absolute inset-0 z-10 w-full h-full pointer-events-none">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(31,162,74,0.18),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(212,175,55,0.12),transparent_35%),linear-gradient(180deg,rgba(8,15,28,0.95),rgba(2,6,23,0.98))]" />
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:72px_72px] opacity-15" />
 
             <motion.div
-              initial={{ opacity: 0, x: -40, scale: 0.98 }}
-              animate={{ opacity: 0.35, x: 0, scale: 1 }}
-              transition={{ duration: 2.2, ease: 'easeOut' }}
-              className="absolute left-[-8%] bottom-[-10%] w-[38vw] max-w-[560px] aspect-square pointer-events-none z-10 mix-blend-screen opacity-35"
-            >
-              <img src="/player_10.png" alt="Number 10" className="w-full h-full object-contain [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 40, scale: 0.98 }}
-              animate={{ opacity: 0.32, x: 0, scale: 1 }}
-              transition={{ duration: 2.2, ease: 'easeOut' }}
-              className="absolute right-[-7%] bottom-[-8%] w-[40vw] max-w-[620px] aspect-square pointer-events-none z-10 mix-blend-screen opacity-30"
-            >
-              <img src="/player_7.png" alt="Number 7" className="w-full h-full object-contain [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30, filter: 'blur(18px)' }}
+              initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              transition={{ duration: 1.1, ease: 'easeOut' }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
               className="absolute inset-0 z-30 flex items-center justify-center px-4 py-8 sm:py-10"
             >
-              <div className="w-full max-w-7xl grid lg:grid-cols-[1.05fr_0.95fr] gap-5 sm:gap-6 items-center pointer-events-none">
-                <div className="pointer-events-auto flex flex-col gap-5 sm:gap-6">
-                  <div className="inline-flex items-center gap-2 self-start px-3 py-1.5 rounded-full border border-emerald-400/30 bg-emerald-950/60 text-[11px] font-bold uppercase tracking-[0.28em] text-emerald-300 shadow-[0_0_24px_rgba(16,185,129,0.15)] backdrop-blur-md">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Tactical LLM Football Guessing Game
-                  </div>
+              <motion.div
+                initial={{ opacity: 0, x: -24 }}
+                animate={{ opacity: 0.18, x: 0 }}
+                transition={{ duration: 1.6, ease: 'easeOut' }}
+                className="absolute left-[-6%] bottom-[-6%] w-[28vw] max-w-[420px] aspect-square pointer-events-none mix-blend-screen"
+              >
+                <img src="/player_10.png" alt="" aria-hidden="true" className="w-full h-full object-contain [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 24 }}
+                animate={{ opacity: 0.14, x: 0 }}
+                transition={{ duration: 1.6, ease: 'easeOut' }}
+                className="absolute right-[-5%] bottom-[-4%] w-[30vw] max-w-[440px] aspect-square pointer-events-none mix-blend-screen"
+              >
+                <img src="/player_7.png" alt="" aria-hidden="true" className="w-full h-full object-contain [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
+              </motion.div>
 
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-3 py-1 rounded-full border border-slate-700 bg-slate-900/80 text-[11px] uppercase tracking-[0.25em] text-slate-300">Reverse Akinator</span>
-                      <span className="px-3 py-1 rounded-full border border-stadium-gold/30 bg-stadium-gold/10 text-[11px] uppercase tracking-[0.25em] text-stadium-gold">Football Edition</span>
-                    </div>
-                    <h1 className="max-w-2xl font-display text-[3.45rem] leading-[0.82] sm:text-[5.3rem] lg:text-[6.9rem] font-black tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 drop-shadow-2xl">
-                      Reverse
-                      <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-400 to-stadium-gold drop-shadow-[0_0_40px_rgba(52,211,153,0.28)]">
-                        Akinator
-                      </span>
-                    </h1>
-                    <p className="max-w-xl text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed">
-                      Strike the ball to start the match, interrogate the AI referee, and corner the secret player with sharp football logic.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {[
-                      { icon: BrainCircuit, label: 'LLM referee', value: 'multi-provider' },
-                      { icon: Target, label: 'Win condition', value: 'identify the player' },
-                      { icon: ShieldCheck, label: 'Fact engine', value: 'hard rule checks' },
-                    ].map(({ icon: Icon, label, value }) => (
-                      <div key={label} className="rounded-2xl border border-slate-800/80 bg-slate-950/75 backdrop-blur-md px-4 py-3 shadow-[0_0_24px_rgba(2,6,23,0.25)]">
-                        <Icon className="w-4 h-4 text-emerald-400 mb-2" />
-                        <div className="text-[11px] uppercase tracking-[0.24em] text-slate-500">{label}</div>
-                        <div className="mt-1 text-sm font-semibold text-slate-100">{value}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-3 pointer-events-auto">
-                    <div className="inline-flex items-center gap-2 rounded-2xl border border-stadium-gold/40 bg-slate-950/80 px-4 py-3 backdrop-blur-md shadow-[0_0_28px_rgba(212,175,55,0.12)]">
-                      <img
-                        src="/reverse_akinator_logo.png"
-                        alt="Reverse Akinator Logo"
-                        className="h-10 w-auto rounded-xl border border-emerald-500/40 bg-slate-950 p-1"
-                      />
-                      <div className="h-9 w-px bg-slate-700" />
-                      <div className="flex items-center gap-2">
-                        <img
-                          src="/mic_logo.png"
-                          alt="MIC Club Logo"
-                          className="w-10 h-10 object-contain rounded-xl border border-stadium-gold/50 bg-slate-950 p-1"
-                        />
-                        <div className="flex flex-col">
-                          <span className="text-[9px] uppercase font-semibold text-slate-400 tracking-[0.26em]">Official Game By</span>
-                          <span className="text-xs font-black uppercase tracking-[0.22em] text-stadium-gold">MIC Club</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="inline-flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-950/40 px-4 py-3 backdrop-blur-md text-slate-200">
-                      <Play className="w-4 h-4 text-emerald-300" />
-                      <div className="text-sm">
-                        <div className="font-semibold text-white">Drag the ball to kick off</div>
-                        <div className="text-xs text-slate-400">Then switch to interrogation mode and ask smart questions.</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pointer-events-auto rounded-[1.5rem] border border-slate-800/80 bg-slate-950/75 px-4 py-4 backdrop-blur-md shadow-[0_0_24px_rgba(2,6,23,0.25)]">
-                    <div className="text-[10px] uppercase tracking-[0.3em] text-slate-500">35-player roster loaded</div>
-                    <div className="mt-1 text-sm font-semibold text-white">No spoilers on the main screen.</div>
-                    <div className="mt-2 text-xs text-slate-400 leading-relaxed">
-                      Kick off the ball to start the interrogation, then reveal one player only at the end of the match.
-                    </div>
+              <div className="w-full max-w-6xl grid lg:grid-cols-[0.95fr_1.05fr] gap-4 sm:gap-6 items-center pointer-events-none">
+                <div className="pointer-events-auto max-w-2xl">
+                  <h1 className="font-display text-[3.3rem] leading-[0.82] sm:text-[5rem] lg:text-[6.3rem] font-black tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 drop-shadow-2xl">
+                    Reverse
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-400 to-stadium-gold">
+                      Akinator
+                    </span>
+                  </h1>
+                  <p className="mt-4 max-w-xl text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed">
+                    Strike the ball to start the match and guess the secret player.
+                  </p>
+                  <div className="mt-6 inline-flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-950/40 px-4 py-3 backdrop-blur-md text-slate-200">
+                    <Play className="w-4 h-4 text-emerald-300" />
+                    <span className="text-sm font-medium">Drag the ball to kick off.</span>
                   </div>
                 </div>
 
@@ -170,15 +110,6 @@ function App() {
                     </div>
                     <div className="relative aspect-[4/5] min-h-[420px] sm:min-h-[520px]">
                       <PitchInteractiveCanvas onGoalScored={handleGoalScored} />
-                      <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-slate-700/80 bg-slate-950/85 backdrop-blur-md px-4 py-3 text-sm text-slate-200 shadow-2xl">
-                        <div className="flex items-center gap-2 font-semibold text-stadium-gold">
-                          <ArrowRight className="w-4 h-4" />
-                          How it works
-                        </div>
-                        <div className="mt-1 text-xs sm:text-sm text-slate-400 leading-relaxed">
-                          Strike the ball to launch the match, then use the model settings if you want to switch providers or keys.
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -194,7 +125,7 @@ function App() {
             <div className="w-full max-w-xl mx-auto px-4">
               <div className="rounded-[2rem] border border-slate-800 bg-slate-950/90 backdrop-blur-xl shadow-[0_0_60px_rgba(15,23,42,0.55)] px-6 py-8 text-center">
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-950/40 px-3 py-1 text-[11px] uppercase tracking-[0.28em] text-emerald-300">
-                  <BrainCircuit className="w-3.5 h-3.5" />
+                  <Cpu className="w-3.5 h-3.5" />
                   Calibrating referee
                 </div>
                 <div className="mt-4 font-display text-4xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-stadium-gold tracking-widest uppercase">
@@ -274,12 +205,11 @@ function App() {
       {/* Top Fixed Floating Badges (Only visible on Kickoff screen to prevent overlapping MatchArena header) */}
       {phase === 'KICKOFF' && (
         <>
-          <div className="fixed top-4 left-4 z-50 pointer-events-auto flex items-center gap-3 px-3.5 py-2 rounded-2xl bg-slate-900/95 border-2 border-slate-700/80 hover:border-stadium-gold/60 backdrop-blur-md shadow-2xl transition">
-            <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-8 sm:h-10 w-auto object-contain rounded-lg" />
-            <div className="w-px h-7 bg-slate-700" />
-            <div className="flex items-center gap-2">
-              <img src="/mic_logo.png" alt="MIC Club Logo" className="w-8 sm:w-10 h-8 sm:h-10 object-contain rounded-xl border border-stadium-gold/40 shadow-md bg-slate-950 p-0.5" />
-              <span className="hidden sm:inline text-xs font-black uppercase tracking-widest text-stadium-gold">MIC Club</span>
+          <div className="fixed top-4 left-4 z-50 pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-3xl bg-slate-950/90 border border-slate-700/80 hover:border-stadium-gold/60 backdrop-blur-md shadow-2xl transition">
+            <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-10 sm:h-12 w-auto object-contain" />
+            <div className="w-px h-9 bg-slate-700" />
+            <div className="flex items-center gap-2 rounded-2xl bg-white/90 px-2.5 py-1.5 shadow-sm border border-white/70">
+              <img src="/mic_logo.png" alt="MIC Club Logo" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
             </div>
           </div>
 
