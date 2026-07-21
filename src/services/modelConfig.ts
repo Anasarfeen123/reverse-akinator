@@ -4,6 +4,7 @@ export interface ModelConfig {
   provider: LLMProvider;
   model: string;
   apiKeys: {
+    puter?: string;
     gemini?: string;
     openai?: string;
     anthropic?: string;
@@ -93,5 +94,6 @@ export function saveModelConfig(config: ModelConfig): void {
 
 export function getActiveApiKey(config: ModelConfig): string | undefined {
   if (config.provider === 'ollama') return undefined;
+  if (config.provider === 'puter') return config.apiKeys.puter;
   return config.apiKeys[config.provider as keyof typeof config.apiKeys];
 }

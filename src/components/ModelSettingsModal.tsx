@@ -204,17 +204,19 @@ export const ModelSettingsModal: React.FC<ModelSettingsModalProps> = ({
               )}
             </div>
 
-            {/* API Key Input (if required by provider) */}
-            {currentProviderInfo.requiresKey ? (
+            {/* API Key / Auth Token Input */}
+            {(currentProviderInfo.requiresKey || provider === 'puter') ? (
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <Key className="w-4 h-4 text-amber-400" />
-                  {currentProviderInfo.label} API Key
+                  {provider === 'puter' ? 'Puter Auth Token' : `${currentProviderInfo.label} API Key`}
                 </label>
                 <div className="relative">
                   <input
                     type={showKey ? 'text' : 'password'}
-                    placeholder={`Enter your ${currentProviderInfo.label} API key...`}
+                    placeholder={provider === 'puter'
+                      ? 'Enter your Puter auth token...'
+                      : `Enter your ${currentProviderInfo.label} API key...`}
                     value={apiKeys[provider] || ''}
                     onChange={(e) => handleApiKeyChange(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3.5 pr-10 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition placeholder-slate-600 font-mono"
@@ -234,11 +236,7 @@ export const ModelSettingsModal: React.FC<ModelSettingsModalProps> = ({
             ) : (
               <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/60 text-xs text-slate-400 flex items-center gap-2">
                 <Zap className="w-4 h-4 text-emerald-400 shrink-0" />
-                {provider === 'puter' ? (
-                  <span>Puter.js provides free cloud access to 500+ AI models directly from your browser (No API key required).</span>
-                ) : (
-                  <span>Ollama runs locally on your machine at port 11434 (No API key required).</span>
-                )}
+                <span>Ollama runs locally on your machine at port 11434 (No API key required).</span>
               </div>
             )}
 

@@ -850,36 +850,42 @@ async function callGroq({ model, apiKey, systemPrompt, userMessage }) {
 /**
  * Call Puter.js (Free Cloud AI)
  */
-async function callPuter({ model, systemPrompt, userMessage }) {
+async function callPuter({ model, apiKey, systemPrompt, userMessage }) {
+  const key = apiKey || process.env.PUTER_AUTH_TOKEN || process.env.PUTER_API_KEY;
+  if (!key) {
+    throw new Error('Puter auth token is required. Add it in settings or set PUTER_AUTH_TOKEN on the server.');
+  }
+
   const selectedModel = model || PROVIDER_DEFAULTS.puter;
   try {
-    const res = await fetch('https://api.puter.com/drivers/call', {
+    const res = await fetch('https://api.puter.com/puterai/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`,
+      },
       body: JSON.stringify({
-        interface: 'puter-ai',
-        driver: selectedModel,
-        method: 'chat',
-        args: {
-          prompt: `${systemPrompt}\n\nUser Question: ${userMessage}`,
-          model: selectedModel,
-        },
+        model: selectedModel,
+        temperature: 0,
+        max_tokens: 128,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
       }),
     });
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data?.result) {
-        if (typeof data.result === 'string') return data.result.trim();
-        if (data.result.message?.content) return data.result.message.content.trim();
-        if (data.result.text) return data.result.text.trim();
-      }
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Puter API Error (${res.status}): ${errText}`);
     }
-  } catch {
-    // Fallback if driver endpoint requires browser session
-  }
 
-  return "Don't Know";
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content?.trim() || '';
+  } catch (error) {
+    console.error('Puter call failed:', error);
+    throw error;
+  }
 }
 
 /**

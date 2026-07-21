@@ -100,16 +100,44 @@ declare global {
 
 export const testModelConnectionApi = async (config: ModelConfig) => {
   if (config.provider === 'puter') {
+    const puterToken = config.apiKeys.puter;
+
+    if (puterToken) {
+      const response = await fetch('https://api.puter.com/puterai/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${puterToken}`,
+        },
+        body: JSON.stringify({
+          model: config.model,
+          temperature: 0,
+          max_tokens: 32,
+          messages: [{ role: 'user', content: 'Respond with the word OK' }],
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Puter API Error (${response.status}): ${errText}`);
+      }
+
+      const data = await response.json();
+      const text = data?.choices?.[0]?.message?.content?.trim() || 'OK';
+      return { success: true, message: `Puter auth token verified. AI output: "${text}"` };
+    }
+
     if (typeof window !== 'undefined' && window.puter?.ai?.chat) {
       try {
         const response = await window.puter.ai.chat('Respond with the word OK', { model: config.model });
         const text = typeof response === 'string' ? response : (response?.message?.content || response?.text || 'OK');
-        return { success: true, message: `Puter.js (${config.model}) Live Verified! AI output: "${text.trim()}"` };
+        return { success: true, message: `Puter.js browser SDK is loaded. AI output: "${text.trim()}". Add a Puter auth token if backend game answers still fail.` };
       } catch {
-        return { success: true, message: `Puter.js Cloud AI (${config.model}) loaded and active!` };
+        return { success: false, message: `Puter.js browser SDK could not complete a test call. Try signing in to Puter or add a Puter auth token.` };
       }
     }
-    return { success: true, message: `Puter.js Cloud AI (${config.model}) ready!` };
+
+    return { success: false, message: 'Puter is not authenticated. Add a Puter auth token or sign in with Puter in the browser first.' };
   }
 
   const response = await fetch(`${API_BASE}/test-config`, {
