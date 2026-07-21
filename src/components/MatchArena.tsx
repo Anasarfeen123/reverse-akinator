@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { HelpCircle, AlertCircle, Loader2, Settings, Cpu, Sparkles, MessageSquare, Zap } from 'lucide-react';
+import { HelpCircle, AlertCircle, Loader2, Settings, Cpu, Sparkles, MessageSquare, Zap, Flag } from 'lucide-react';
 import { askQuestion, submitGuess } from '../services/api';
 import type { AllowedAnswer } from '../types/game';
 import { type ModelConfig, PROVIDER_MODELS } from '../services/modelConfig';
@@ -159,6 +159,10 @@ export const MatchArena = ({
 
   const currentProviderLabel = modelConfig ? PROVIDER_MODELS[modelConfig.provider]?.label || modelConfig.provider : 'Ollama';
   const currentModelName = modelConfig?.model || 'qwen2.5-coder:7b';
+  const handleGiveUp = () => {
+    if (isGameOver) return;
+    onMatchEnd({ isWin: false, actualPlayer: secretPlayer });
+  };
 
   // Dynamic status phrase for Akinator
   const getAkinatorSpeech = () => {
@@ -237,8 +241,23 @@ export const MatchArena = ({
                 onClick={onOpenSettings}
                 className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
                 title="AI Model & API Key Settings"
+                >
+                  <Settings className="w-4 h-4 text-emerald-400" />
+                </button>
+            </>
+          )}
+
+          {!isGameOver && (
+            <>
+              <div className="w-px h-5 bg-slate-700" />
+              <button
+                type="button"
+                onClick={handleGiveUp}
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-950/80 border border-rose-500/40 text-[11px] font-bold uppercase tracking-wider text-rose-200 hover:bg-rose-900 transition"
+                title="Give up and reveal the player"
               >
-                <Settings className="w-4 h-4 text-emerald-400" />
+                <Flag className="w-3.5 h-3.5" />
+                Give Up
               </button>
             </>
           )}
@@ -480,6 +499,17 @@ export const MatchArena = ({
               </>
             )}
           </button>
+
+          {!isGameOver && (
+            <button
+              type="button"
+              onClick={handleGiveUp}
+              className="sm:hidden px-4 py-2.5 rounded-xl border border-rose-500/40 bg-rose-950/70 text-rose-200 text-xs font-bold uppercase tracking-wider transition hover:bg-rose-900 flex items-center justify-center gap-1.5"
+            >
+              <Flag className="w-3.5 h-3.5" />
+              Give Up
+            </button>
+          )}
         </form>
       </div>
     </div>

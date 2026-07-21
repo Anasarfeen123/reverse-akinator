@@ -16,14 +16,10 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
     
     let animationFrameId: number;
     let hasScored = false;
+    let isReturningHome = false;
+    let shotInPlay = false;
+    let shotStartedAt = 0;
     
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
     const ball = {
       x: canvas.width / 2,
       y: canvas.height - 150,
@@ -34,6 +30,47 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
       vx: 0,
       vy: 0,
       rotation: 0
+    };
+
+    const homePosition = () => ({
+      x: canvas.width / 2,
+      y: canvas.height - 150,
+    });
+
+    const resetBall = () => {
+      const home = homePosition();
+      ball.x = home.x;
+      ball.y = home.y;
+      ball.vx = 0;
+      ball.vy = 0;
+      ball.rotation = 0;
+      ball.radius = 35;
+      ball.isDragging = false;
+      shotInPlay = false;
+      isReturningHome = false;
+      shotStartedAt = 0;
+    };
+
+    const resizeCanvas = () => {
+      const parent = canvas.parentElement;
+      const width = Math.max(320, parent?.clientWidth || window.innerWidth);
+      const height = Math.max(320, parent?.clientHeight || window.innerHeight);
+
+      canvas.width = Math.floor(width);
+      canvas.height = Math.floor(height);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      if (!ball.isDragging && !shotInPlay && !isReturningHome && !hasScored) {
+        resetBall();
+      }
+    };
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const startReturnHome = () => {
+      if (hasScored || isReturningHome) return;
+      isReturningHome = true;
+      ball.isDragging = false;
     };
 
     const mouse = { x: -1000, y: -1000 };
@@ -53,7 +90,7 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
     };
 
     const handlePointerDown = (e: MouseEvent | TouchEvent) => {
-      if (hasScored) return;
+      if (hasScored || isReturningHome) return;
       const pos = getMousePos(e);
       const dx = pos.x - ball.x;
       const dy = pos.y - ball.y;
@@ -72,7 +109,7 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
       mouse.x = pos.x;
       mouse.y = pos.y;
 
-      if (ball.isDragging && !hasScored) {
+      if (ball.isDragging && !hasScored && !isReturningHome) {
         const prevX = ball.x;
         const prevY = ball.y;
         
@@ -87,14 +124,23 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
     };
 
     const handlePointerUp = () => {
+      if (ball.isDragging && !hasScored && !isReturningHome) {
+        shotInPlay = true;
+        shotStartedAt = performance.now();
+      }
       ball.isDragging = false;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      handlePointerMove(e);
     };
 
     canvas.addEventListener('mousedown', handlePointerDown);
     canvas.addEventListener('mousemove', handlePointerMove);
     window.addEventListener('mouseup', handlePointerUp);
     canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handlePointerMove(e); }, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
     window.addEventListener('touchend', handlePointerUp);
 
     const drawGlowingNet = () => {
@@ -221,26 +267,44 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
       const net = drawGlowingNet();
 
       if (!ball.isDragging && !hasScored) {
-        // Friction and drift
-        ball.vx *= 0.95;
-        ball.vy *= 0.95;
-        ball.x += ball.vx;
-        ball.y += ball.vy;
-        ball.rotation += ball.vx * 0.05;
+        if (isReturningHome) {
+          const home = homePosition();
+          ball.x += (home.x - ball.x) * 0.14;
+          ball.y += (home.y - ball.y) * 0.14;
+          ball.rotation *= 0.9;
 
-        // Return to center bottom if idle
-        if (Math.abs(ball.vx) < 0.1 && Math.abs(ball.vy) < 0.1) {
-          const targetX = canvas.width / 2;
-          const targetY = canvas.height - 150;
-          ball.x += (targetX - ball.x) * 0.02;
-          ball.y += (targetY - ball.y) * 0.02;
+          if (Math.abs(ball.x - home.x) < 1.5 && Math.abs(ball.y - home.y) < 1.5) {
+            resetBall();
+          }
+        } else if (shotInPlay) {
+          // Friction and drift while the shot is in flight
+          ball.vx *= 0.985;
+          ball.vy *= 0.985;
+          ball.x += ball.vx;
+          ball.y += ball.vy;
+          ball.rotation += ball.vx * 0.05;
+
+          const now = performance.now();
+          const shotAge = now - shotStartedAt;
+          const speed = Math.hypot(ball.vx, ball.vy);
+          const missedGoalWindow = ball.y <= net.topY + net.height + ball.radius * 0.5 && (ball.x <= net.startX || ball.x >= net.startX + net.width);
+          const outOfBounds = ball.y < -ball.radius || ball.x < -ball.radius || ball.x > canvas.width + ball.radius || ball.y > canvas.height + ball.radius;
+          const stalledShot = shotAge > 1100 && speed < 0.45;
+
+          if (missedGoalWindow || outOfBounds || stalledShot) {
+            startReturnHome();
+          }
         }
+      } else if (ball.isDragging && isReturningHome) {
+        resetBall();
       }
 
       // Check for goal
-      if (!hasScored && ball.y < net.topY + net.height && ball.x > net.startX && ball.x < net.startX + net.width) {
+      if (!hasScored && shotInPlay && ball.y < net.topY + net.height && ball.x > net.startX && ball.x < net.startX + net.width) {
         hasScored = true;
         ball.isDragging = false;
+        isReturningHome = false;
+        shotInPlay = false;
         
         // Suck ball into the net center
         ball.vx = (canvas.width / 2 - ball.x) * 0.1;

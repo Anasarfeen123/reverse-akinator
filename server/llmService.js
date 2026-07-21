@@ -21,41 +21,104 @@ export const PROVIDER_DEFAULTS = {
   groq: 'llama-3.3-70b-versatile',
 };
 
-function isNameQuestion(question, secretPlayer) {
-  const q = question.toLowerCase().trim();
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizeText(value = '') {
+  return value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[’']/g, '')
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getTagValue(playerContext, key) {
+  if (!playerContext) return '';
+  const match = playerContext.match(new RegExp(`${escapeRegex(key)}:\\s*(.+)`, 'i'));
+  return match ? match[1].trim() : '';
+}
+
+function getKnownNameCandidates(secretPlayer, playerContext) {
+  const rawCandidates = [
+    secretPlayer,
+    getTagValue(playerContext, 'Full Name'),
+    getTagValue(playerContext, 'Common Names / Aliases'),
+    getTagValue(playerContext, 'Famous Nicknames / Monikers'),
+  ]
+    .filter(Boolean)
+    .flatMap((entry) => entry.split(/[|,;/]/g))
+    .map((entry) => normalizeText(entry))
+    .filter((entry) => entry.length >= 3);
+
+  return [...new Set(rawCandidates)];
+}
+
+function questionMentionsKnownName(question, secretPlayer, playerContext) {
+  const q = normalizeText(question);
+  const nameCandidates = getKnownNameCandidates(secretPlayer, playerContext);
+
+  for (const candidate of nameCandidates) {
+    if (!candidate) continue;
+    if (q.includes(candidate)) {
+      return true;
+    }
+    const candidateParts = candidate.split(' ').filter((part) => part.length >= 3);
+    if (candidateParts.length >= 2 && candidateParts.every((part) => q.includes(part))) {
+      return true;
+    }
+    if (candidateParts.length === 1 && new RegExp(`\\b${escapeRegex(candidateParts[0])}\\b`, 'i').test(q)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function questionMentionsAnyPoolPlayer(question) {
+  const q = normalizeText(question);
+  if (!q) return false;
+
+  for (const name of Object.keys(PLAYER_POOL || {})) {
+    const normalizedName = normalizeText(name);
+    if (!normalizedName) continue;
+    if (q.includes(normalizedName)) {
+      return true;
+    }
+
+    const parts = normalizedName.split(' ').filter((part) => part.length >= 3);
+    const lastName = parts[parts.length - 1];
+    if (parts.length >= 2 && parts.every((part) => q.includes(part))) {
+      return true;
+    }
+    if (lastName && new RegExp(`\\b${escapeRegex(lastName)}\\b`, 'i').test(q)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function isNameQuestion(question, secretPlayer, playerContext) {
+  const q = normalizeText(question);
 
   // 1. Explicit name identity questions
   if (
-    /his name is/i.test(q) ||
-    /is his name/i.test(q) ||
-    /what is his name/i.test(q) ||
-    /who is he/i.test(q) ||
-    /are we thinking of/i.test(q)
+    /^(what|who|is|are)\b.*\b(name|player|person|identity)\b/i.test(q) ||
+    /^(who\s+is\s+(he|she|it)|what('?s| is)\s+(his|her|their|the)\s+name)/i.test(q) ||
+    /^(is|are)\s+(it|this|that|the player|the answer)\b/i.test(q) ||
+    /\bare we thinking of\b/i.test(q)
   ) {
     return true;
   }
 
-  // 2. Secret player name & parts
-  if (secretPlayer) {
-    const secLower = secretPlayer.toLowerCase();
-    const parts = secLower.split(' ');
-    for (const p of parts) {
-      if (p.length >= 3 && new RegExp(`\\b${p}\\b`, 'i').test(q)) {
-        return true;
-      }
-    }
-  }
-
-  // 3. Pool names
-  if (PLAYER_POOL) {
-    for (const name of Object.keys(PLAYER_POOL)) {
-      const nameLower = name.toLowerCase();
-      const parts = nameLower.split(' ');
-      const lastName = parts[parts.length - 1];
-      if (q.includes(nameLower) || (lastName.length >= 3 && new RegExp(`\\b${lastName}\\b`, 'i').test(q))) {
-        return true;
-      }
-    }
+  // 2. Direct guess phrasing that names a specific player
+  const hasGuessFrame = /^(is|are)\b/.test(q) && !/\b(better than|worse than|greater than|best player|greatest|top player|compare to|compared to|play for|club does he play for|position|age|foot|country|nationality|goals|trophies)\b/.test(q);
+  if (hasGuessFrame && (questionMentionsKnownName(question, secretPlayer, playerContext) || questionMentionsAnyPoolPlayer(question))) {
+    return true;
   }
 
   return false;
@@ -63,6 +126,117 @@ function isNameQuestion(question, secretPlayer) {
 
 function getDefaultModel(provider) {
   return PROVIDER_DEFAULTS[provider?.toLowerCase()] || 'qwen2.5-coder:7b';
+}
+
+function parseLLMAnswer(raw) {
+  if (typeof raw !== 'string' || !raw.trim()) {
+    return "Don't Know";
+  }
+
+  const withoutBlocks = raw
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/[*_`"#]/g, ' ');
+
+  const lines = withoutBlocks.split('\n').map((line) => line.trim()).filter(Boolean);
+  const cleaned = withoutBlocks.replace(/\s+/g, ' ').trim();
+  const normalized = normalizeText(cleaned);
+  const firstNormalized = normalizeText(lines[0] || cleaned);
+
+  const matchers = [
+    { answer: 'Probably Not', patterns: [/^probably not\b/, /^not likely\b/, /^unlikely\b/] },
+    { answer: "Don't Know", patterns: [/^(?:i\s+)?(?:don't know|dont know)\b/, /^unclear\b/, /^unknown\b/] },
+    { answer: 'Probably', patterns: [/^probably\b/, /^maybe\b/, /^likely\b/] },
+    { answer: 'Yes', patterns: [/^yes\b/, /^yeah\b/, /^yep\b/, /^true\b/, /^correct\b/] },
+    { answer: 'No', patterns: [/^no\b/, /^nope\b/, /^false\b/, /^incorrect\b/] },
+  ];
+
+  for (const { answer, patterns } of matchers) {
+    if (patterns.some((pattern) => pattern.test(firstNormalized) || pattern.test(normalized))) {
+      return answer;
+    }
+  }
+
+  return "Don't Know";
+}
+
+function confidenceForAnswer(answer) {
+  switch (answer) {
+    case 'Yes':
+      return 94;
+    case 'Probably':
+      return 78;
+    case 'Probably Not':
+      return 22;
+    case 'No':
+      return 6;
+    default:
+      return 50;
+  }
+}
+
+function guessMatchesKnownName(guess, secretPlayer, playerContext) {
+  const guessNorm = normalizeText(guess);
+  const secretNorm = normalizeText(secretPlayer);
+  if (!guessNorm || !secretNorm) return false;
+
+  if (guessNorm === secretNorm || guessNorm.includes(secretNorm) || secretNorm.includes(guessNorm)) {
+    return true;
+  }
+
+  const nameCandidates = getKnownNameCandidates(secretPlayer, playerContext);
+  for (const candidate of nameCandidates) {
+    if (!candidate) continue;
+    if (guessNorm === candidate || guessNorm.includes(candidate) || candidate.includes(guessNorm)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function parseHeightValue(heightText = '') {
+  const normalized = normalizeText(heightText);
+  if (!normalized) return null;
+
+  const meterMatch = normalized.match(/(\d+(?:\.\d+)?)\s*m\b/);
+  if (meterMatch) {
+    return parseFloat(meterMatch[1]);
+  }
+
+  const feetInchesMatch = normalized.match(/(\d+)\s*ft\s*(\d+)?\s*in?/);
+  if (feetInchesMatch) {
+    const feet = parseInt(feetInchesMatch[1], 10);
+    const inches = parseInt(feetInchesMatch[2] || '0', 10);
+    return (feet * 0.3048) + (inches * 0.0254);
+  }
+
+  const feetOnlyMatch = normalized.match(/(\d+(?:\.\d+)?)\s*ft\b/);
+  if (feetOnlyMatch) {
+    return parseFloat(feetOnlyMatch[1]) * 0.3048;
+  }
+
+  return null;
+}
+
+function extractBirthAndHometownFacts(playerContext) {
+  const knownFacts = getTagValue(playerContext, 'Known Facts');
+  const context = `${knownFacts} ${playerContext}`;
+  return normalizeText(context);
+}
+
+function isObviouslyOpenEndedQuestion(question) {
+  const q = normalizeText(question);
+  if (!q) return true;
+
+  if (/^(what|which|when|where|why|how|who)\b/.test(q)) {
+    return !/^(who\s+is\s+(he|she|it)|what('?s| is)\s+(his|her|their|the)\s+name)/.test(q);
+  }
+
+  if (/\b(better than|worse than|greater than|best player|greatest|top player|compare to|compared to)\b/.test(q)) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -82,9 +256,13 @@ function evaluateFactDirectly(question, secretPlayer, playerContext) {
   const continent = getTag('Continent').toLowerCase(); // Europe, South America, Africa, Asia
   const posCategory = getTag('Position Category').toLowerCase(); // Forward, Midfielder, Defender, Goalkeeper
   const foot = getTag('Preferred Foot').toLowerCase(); // Left, Right, Both
+  const heightTag = getTag('Height').toLowerCase();
+  const playerHeightMeters = parseHeightValue(heightTag);
   const intlTrophies = getTag('Major International Trophies').toLowerCase();
   const clubTrophies = getTag('Major Club Trophies').toLowerCase();
   const ballonDor = getTag("Ballon d'Or Count").toLowerCase();
+  const ballonDorCountMatch = ballonDor.match(/\b(\d+)\b/);
+  const ballonDorCount = ballonDorCountMatch ? parseInt(ballonDorCountMatch[1], 10) : 0;
 
   const nationality = getTag('Nationality').toLowerCase(); // French, Argentine, Brazilian, etc.
   const currentClub = getTag('Current Club').toLowerCase();
@@ -132,6 +310,36 @@ function evaluateFactDirectly(question, secretPlayer, playerContext) {
   }
   if (/(alive)/i.test(qClean)) {
     return status !== 'DECEASED' ? 'Yes' : 'No';
+  }
+
+  // 1c. HEIGHT
+  if (playerHeightMeters !== null && /(height|tall|taller|shorter|over|under|above|below)/i.test(qClean)) {
+    const metricMatch = qClean.match(/\b(\d+(?:\.\d+)?)\s*m\b/);
+    const feetInchesMatch = qClean.match(/\b(\d+)\s*ft\s*(\d+)?\s*in?/);
+    const feetOnlyMatch = qClean.match(/\b(\d+(?:\.\d+)?)\s*ft\b/);
+    let targetHeight = null;
+
+    if (metricMatch) {
+      targetHeight = parseFloat(metricMatch[1]);
+    } else if (feetInchesMatch) {
+      const feet = parseInt(feetInchesMatch[1], 10);
+      const inches = parseInt(feetInchesMatch[2] || '0', 10);
+      targetHeight = (feet * 0.3048) + (inches * 0.0254);
+    } else if (feetOnlyMatch) {
+      targetHeight = parseFloat(feetOnlyMatch[1]) * 0.3048;
+    }
+
+    if (targetHeight !== null) {
+      if (/(taller|more than|over|above|greater than)/i.test(qClean)) {
+        return playerHeightMeters > targetHeight ? 'Yes' : 'No';
+      }
+      if (/(shorter|less than|under|below)/i.test(qClean)) {
+        return playerHeightMeters < targetHeight ? 'Yes' : 'No';
+      }
+      if (/(exactly|is he|is his height|same height|around)/i.test(qClean)) {
+        return Math.abs(playerHeightMeters - targetHeight) < 0.02 ? 'Yes' : 'No';
+      }
+    }
   }
 
   // 2. CONTINENT & AMERICA / EUROPE / ASIA / AFRICA
@@ -215,7 +423,20 @@ function evaluateFactDirectly(question, secretPlayer, playerContext) {
     return clubTrophies.includes('champions league') ? 'Yes' : 'No';
   }
   if (/(ballon d'or|ballon dor|ballon)/i.test(rawQ)) {
-    return (!ballonDor.includes('0') && !ballonDor.includes('zero')) ? 'Yes' : 'No';
+    const numMatch = qClean.match(/\b(\d+)\b/);
+    if (numMatch) {
+      const target = parseInt(numMatch[1], 10);
+      if (/(more than|over|above|greater than|at least)/i.test(qClean)) {
+        return ballonDorCount > target ? 'Yes' : 'No';
+      }
+      if (/(less than|under|below)/i.test(qClean)) {
+        return ballonDorCount < target ? 'Yes' : 'No';
+      }
+      if (/(exactly|equal to|just)/i.test(qClean)) {
+        return ballonDorCount === target ? 'Yes' : 'No';
+      }
+    }
+    return ballonDorCount > 0 ? 'Yes' : 'No';
   }
 
   // 6. FAMOUS CLUBS
@@ -224,6 +445,33 @@ function evaluateFactDirectly(question, secretPlayer, playerContext) {
   }
   if (/(barcelona|barca)/i.test(qClean)) {
     return allClubs.includes('barcelona') ? 'Yes' : 'No';
+  }
+  if (/(inter miami|miami cf)/i.test(qClean)) {
+    return allClubs.includes('inter miami') ? 'Yes' : 'No';
+  }
+  if (/(santos fc|santos)/i.test(qClean)) {
+    return allClubs.includes('santos') ? 'Yes' : 'No';
+  }
+  if (/(al nassr|nassr)/i.test(qClean)) {
+    return allClubs.includes('al nassr') ? 'Yes' : 'No';
+  }
+  if (/(juventus)/i.test(qClean)) {
+    return allClubs.includes('juventus') ? 'Yes' : 'No';
+  }
+  if (/(psg|paris saint-germain|paris)/i.test(qClean)) {
+    return (allClubs.includes('psg') || allClubs.includes('paris')) ? 'Yes' : 'No';
+  }
+  if (/(sporting cp|sporting)/i.test(qClean)) {
+    return allClubs.includes('sporting') ? 'Yes' : 'No';
+  }
+  if (/(borussia dortmund|dortmund)/i.test(qClean)) {
+    return allClubs.includes('dortmund') ? 'Yes' : 'No';
+  }
+  if (/(monaco)/i.test(qClean)) {
+    return allClubs.includes('monaco') ? 'Yes' : 'No';
+  }
+  if (/(flamengo)/i.test(qClean)) {
+    return allClubs.includes('flamengo') ? 'Yes' : 'No';
   }
   if (/(manchester united|man utd)/i.test(qClean)) {
     return (allClubs.includes('manchester united') || allClubs.includes('man utd')) ? 'Yes' : 'No';
@@ -234,8 +482,17 @@ function evaluateFactDirectly(question, secretPlayer, playerContext) {
   if (/(bayern munich|bayern)/i.test(qClean)) {
     return allClubs.includes('bayern') ? 'Yes' : 'No';
   }
-  if (/(psg|paris saint-germain|paris)/i.test(qClean)) {
-    return (allClubs.includes('psg') || allClubs.includes('paris')) ? 'Yes' : 'No';
+  if (/(liverpool)/i.test(qClean)) {
+    return allClubs.includes('liverpool') ? 'Yes' : 'No';
+  }
+  if (/(chelsea)/i.test(qClean)) {
+    return allClubs.includes('chelsea') ? 'Yes' : 'No';
+  }
+  if (/(arsenal)/i.test(qClean)) {
+    return allClubs.includes('arsenal') ? 'Yes' : 'No';
+  }
+  if (/(juventus)/i.test(qClean)) {
+    return allClubs.includes('juventus') ? 'Yes' : 'No';
   }
 
   // 7. FIRST LETTER OF NAME
@@ -254,8 +511,8 @@ function evaluateFactDirectly(question, secretPlayer, playerContext) {
     const numMatch = qClean.match(/\b(\d+)\b/);
     if (numMatch && jerseyTag) {
       const askedNum = numMatch[1];
-      const actualNum = jerseyTag.replace(/\D/g, '');
-      return askedNum === actualNum ? 'Yes' : 'No';
+      const actualNums = jerseyTag.match(/\b(\d+)\b/g) || [];
+      return actualNums.includes(askedNum) ? 'Yes' : 'No';
     }
   }
 
@@ -287,6 +544,21 @@ function evaluateFactDirectly(question, secretPlayer, playerContext) {
     return intlTrophies.includes('copa') ? 'Yes' : 'No';
   }
 
+  // 10b. BIRTHPLACE / HOMETOWN
+  if (/(born|from|raised|hails from)/i.test(qClean)) {
+    const birthFacts = extractBirthAndHometownFacts(playerContext);
+    const locationMatch = qClean.match(/\b(?:born in|from|raised in|born at|hails from)\s+([a-z\s-]+?)(?:\?|$|\bthan\b|\bmore\b|\bless\b)/i);
+    if (locationMatch) {
+      const location = normalizeText(locationMatch[1]);
+      if (location && birthFacts.includes(location)) {
+        return 'Yes';
+      }
+      if (location) {
+        return 'No';
+      }
+    }
+  }
+
   // 11. YOUTH ACADEMY & NICKNAMES & CELEBRATIONS
   if (/(la masia|masia)/i.test(qClean)) {
     return allClubs.includes('masia') ? 'Yes' : 'No';
@@ -315,41 +587,6 @@ function evaluateFactDirectly(question, secretPlayer, playerContext) {
   return null; // Fall through to LLM evaluation if not a direct standard attribute
 }
 
-
-/**
- * Robust LLM Output Sanitizer & Parser
- */
-function parseLLMAnswer(raw) {
-  if (!raw) return "No";
-
-  // Strip code blocks and markdown formatting
-  const cleaned = raw
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/[*_`"#]/g, '')
-    .trim();
-
-  const lines = cleaned.split('\n').map(l => l.trim()).filter(Boolean);
-  const firstLine = lines[0] || '';
-  const lower = cleaned.toLowerCase();
-
-  // 1. Negative indications -> "No"
-  if (
-    /^no\b/i.test(firstLine) ||
-    /\b(no|nope|false|incorrect|negative|not|n't|never|probably not)\b/i.test(lower)
-  ) {
-    return 'No';
-  }
-
-  // 2. Positive indications -> "Yes"
-  if (
-    /^yes\b/i.test(firstLine) ||
-    /\b(yes|yeah|yep|true|correct|affirmative|indeed|probably|sure)\b/i.test(lower)
-  ) {
-    return 'Yes';
-  }
-
-  return "No";
-}
 
 /**
  * Makes a POST request to local Ollama via http module
@@ -601,14 +838,17 @@ export async function callLLM({ provider = 'ollama', model, apiKey, systemPrompt
  * Answer Yes/No Question
  */
 export async function answerQuestion(config, question, secretPlayer, playerContext, chatLog = []) {
-  const nameQuestion = isNameQuestion(question, secretPlayer);
+  const nameQuestion = isNameQuestion(question, secretPlayer, playerContext);
 
   // 1. Direct Factual Pre-evaluation Layer
   if (!nameQuestion) {
     const directFactAnswer = evaluateFactDirectly(question, secretPlayer, playerContext);
     if (directFactAnswer !== null) {
-      const confidence = directFactAnswer === 'Yes' ? 98 : 4;
+      const confidence = directFactAnswer === 'Yes' ? 98 : 96;
       return { answer: directFactAnswer, confidence };
+    }
+    if (isObviouslyOpenEndedQuestion(question)) {
+      return { answer: "Don't Know", confidence: 50 };
     }
   }
 
@@ -635,7 +875,9 @@ export async function answerQuestion(config, question, secretPlayer, playerConte
     if (matchesSecret) {
       return { answer: 'Probably', confidence: 94 };
     }
-    return { answer: 'Probably Not', confidence: 12 };
+    return questionMentionsKnownName(question, secretPlayer, playerContext)
+      ? { answer: 'Probably Not', confidence: 12 }
+      : { answer: 'Probably', confidence: 78 };
   }
 
   // 2. Multi-turn History Context
@@ -643,7 +885,7 @@ export async function answerQuestion(config, question, secretPlayer, playerConte
     ? `=== CHAT HISTORY (PREVIOUS QUESTIONS & ANSWERS) ===\n${chatLog.map((l, i) => `Q${i + 1}: "${l.question}" -> ANSWER: ${l.answer}`).join('\n')}\n=== END CHAT HISTORY ===\n\nCRITICAL CONSTRAINTS FOR HISTORY CONSISTENCY:\n1. You MUST remain 100% logically consistent with every previous answer listed above.\n2. Do NOT contradict any previous answer under any circumstance.`
     : 'This is the first question in the game.';
 
-  const systemPrompt = `You are an expert AI Football Referee with RAG access to the official Wikipedia biography for secret player: "${secretPlayer}".
+  const systemPrompt = `You are an expert AI Football Referee with RAG access to the official biography for the secret player: "${secretPlayer}".
 Below is the factual Wikipedia RAG knowledge base for this player:
 
 === SECRET PLAYER WIKIPEDIA RAG BIOGRAPHY ===
@@ -660,7 +902,9 @@ EVALUATION INSTRUCTIONS:
    - DON'T KNOW (Confidence 30-69%)
    - PROBABLY NOT (Confidence 10-29%)
    - NO (Confidence 0-9%)
-3. Output EXACTLY one word: Yes, No, Probably, Probably Not, or Don't Know.`;
+3. Output EXACTLY one answer on the first line.
+4. Allowed answers are only: Yes, No, Probably, Probably Not, or Don't Know.
+5. Do not explain your reasoning.`;
 
   const userMessage = `User Question: "${question}"\n\nRespond with EXACTLY one answer badge.`;
 
@@ -673,7 +917,7 @@ EVALUATION INSTRUCTIONS:
   });
 
   const parsedAnswer = parseLLMAnswer(raw);
-  const confidence = parsedAnswer === 'Yes' ? 94 : parsedAnswer === 'Probably' ? 78 : parsedAnswer === 'Probably Not' ? 22 : 6;
+  const confidence = confidenceForAnswer(parsedAnswer);
 
   return { answer: parsedAnswer, confidence };
 }
@@ -683,9 +927,7 @@ EVALUATION INSTRUCTIONS:
  */
 export async function checkGuess(config, guess, secretPlayer, playerContext) {
   // Direct text match pre-check for fast & precise execution
-  const gNorm = guess.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const pNorm = secretPlayer.toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (gNorm && (gNorm === pNorm || pNorm.includes(gNorm) || gNorm.includes(pNorm))) {
+  if (guessMatchesKnownName(guess, secretPlayer, playerContext)) {
     return true;
   }
 
