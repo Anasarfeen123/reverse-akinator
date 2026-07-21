@@ -98,10 +98,10 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
     window.addEventListener('touchend', handlePointerUp);
 
     const drawGlowingNet = () => {
-      const width = Math.min(400, canvas.width * 0.8);
-      const height = 120;
+      const width = Math.min(420, canvas.width * 0.85);
+      const height = 110;
       const startX = canvas.width / 2 - width / 2;
-      const topY = 60;
+      const topY = 35;
       
       ctx.save();
       
@@ -215,7 +215,7 @@ export const PitchInteractiveCanvas = ({ onGoalScored }: PitchInteractiveCanvasP
       ctx.restore();
     };
 
-    const renderLoop = (time: number) => {
+    const renderLoop = (_time: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       const net = drawGlowingNet();

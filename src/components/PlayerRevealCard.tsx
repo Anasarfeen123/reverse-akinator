@@ -42,9 +42,9 @@ export const PlayerRevealCard: React.FC<PlayerRevealCardProps> = ({ playerName, 
               <span className="font-display font-black text-4xl text-gold">99</span>
               <span className="font-sans text-xs uppercase tracking-widest text-slate-300">OVR</span>
             </div>
-            {/* Generic placeholder badge */}
-            <div className="w-10 h-10 border-2 border-slate-400 bg-slate-800 rounded-full flex items-center justify-center">
-              <span className="font-display font-bold text-slate-400">XI</span>
+            {/* MIC Club Official Badge */}
+            <div className="w-12 sm:w-14 h-12 sm:h-14 border-2 border-amber-400 bg-slate-950 rounded-2xl flex items-center justify-center overflow-hidden shadow-xl p-1" title="MIC Club Official Edition">
+              <img src="/mic_logo.png" alt="MIC Club Logo" className="w-full h-full object-contain rounded-xl" />
             </div>
           </div>
 

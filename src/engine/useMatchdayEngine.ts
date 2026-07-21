@@ -63,7 +63,7 @@ export function useMatchdayEngine() {
       const result = await actionThunk();
       clearNetworkTimeout();
       dispatch(onSuccess(result));
-    } catch (error) {
+    } catch {
       clearNetworkTimeout();
       dispatch({ type: 'NETWORK_TIMEOUT' });
     }

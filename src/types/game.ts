@@ -12,6 +12,7 @@ export type AllowedAnswer = 'Yes' | 'No' | 'Probably' | 'Probably Not' | "Don't 
 export interface ChatLogEntry {
   question: string;
   answer: AllowedAnswer;
+  confidence?: number; // 0 to 100% confidence rating
 }
 
 export interface GameState {

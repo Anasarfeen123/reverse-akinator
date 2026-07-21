@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "server": "node server/index.js",
-    "dev:all": "concurrently -n \"VITE,SERVER\" -c \"cyan,yellow\" \"vite\" \"node server/index.js\"",
+    "server": "node --watch server/index.js",
+    "dev:all": "concurrently -n \"VITE,SERVER\" -c \"cyan,yellow\" \"vite\" \"node --watch server/index.js\"",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
