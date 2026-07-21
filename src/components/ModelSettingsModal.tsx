@@ -98,9 +98,9 @@ export const ModelSettingsModal: React.FC<ModelSettingsModalProps> = ({
           <div className="flex items-center justify-between pb-4 border-b border-slate-800">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2.5 p-2 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-lg">
-                <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-9 sm:h-10 w-auto object-contain rounded-lg" />
+                <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-11 sm:h-12 md:h-14 w-auto object-contain rounded-lg" />
                 <div className="w-px h-6 bg-slate-700" />
-                <img src="/mic_logo.png" alt="MIC Club Logo" className="w-10 sm:w-12 h-10 sm:h-12 object-contain rounded-xl border border-stadium-gold/40 p-1 bg-white/90" />
+                <img src="/mic-logo.jpg" alt="MIC Club Logo" className="w-10 sm:w-12 h-10 sm:h-12 object-contain rounded-xl border border-stadium-gold/40 p-1 bg-white/90" />
               </div>
               <div>
                 <h3 className="font-display text-lg sm:text-xl font-bold tracking-wide uppercase text-white">

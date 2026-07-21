@@ -206,10 +206,10 @@ function App() {
       {phase === 'KICKOFF' && (
         <>
           <div className="fixed top-4 left-4 z-50 pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-3xl bg-slate-950/90 border border-slate-700/80 hover:border-stadium-gold/60 backdrop-blur-md shadow-2xl transition">
-            <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-10 sm:h-12 w-auto object-contain" />
+            <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-12 sm:h-14 md:h-16 w-auto object-contain" />
             <div className="w-px h-9 bg-slate-700" />
             <div className="flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 shadow-sm border border-white/70">
-              <img src="/mic_logo.png" alt="MIC Club Logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain" />
+              <img src="/mic-logo.jpg" alt="MIC Club Logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain" />
             </div>
           </div>
 

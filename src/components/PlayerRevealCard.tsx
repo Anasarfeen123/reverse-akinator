@@ -43,8 +43,8 @@ export const PlayerRevealCard: React.FC<PlayerRevealCardProps> = ({ playerName, 
                 {isWin ? <Trophy className="w-3.5 h-3.5" /> : <ArrowLeftCircle className="w-3.5 h-3.5" />}
                 {isWin ? 'Correct Guess' : 'Match Ended'}
               </div>
-              <div className="w-12 sm:w-14 h-12 sm:h-14 border border-stadium-gold/50 bg-slate-950/80 rounded-2xl flex items-center justify-center overflow-hidden shadow-xl p-1" title="MIC Club Official Edition">
-                <img src="/mic_logo.png" alt="MIC Club Logo" className="w-full h-full object-contain rounded-xl" />
+              <div className="w-14 sm:w-16 h-14 sm:h-16 border border-stadium-gold/50 bg-slate-950/80 rounded-2xl flex items-center justify-center overflow-hidden shadow-xl p-1.5" title="MIC Club Official Edition">
+                <img src="/mic-logo.jpg" alt="MIC Club Logo" className="w-full h-full object-contain rounded-xl" />
               </div>
             </div>
 

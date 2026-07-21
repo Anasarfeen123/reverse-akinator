@@ -214,13 +214,13 @@ export const MatchArena = ({
       <header className="p-3.5 border-b border-slate-800 bg-slate-900/80 flex justify-between items-center z-10 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-7 w-auto object-contain rounded" />
+            <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-9 sm:h-10 w-auto object-contain rounded" />
             <h1 className="font-display text-lg sm:text-xl uppercase tracking-widest text-stadium-gold font-bold hidden xs:inline">
               Match Arena
             </h1>
             <div className="w-px h-5 bg-slate-700 mx-1 hidden sm:block" />
             <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-900 border border-stadium-gold/50 shadow-md">
-              <img src="/mic_logo.png" alt="MIC Club Logo" className="w-9 sm:w-10 h-9 sm:h-10 object-contain rounded-xl border border-stadium-gold/40 p-1 bg-white/90" />
+              <img src="/mic-logo.jpg" alt="MIC Club Logo" className="w-9 sm:w-10 h-9 sm:h-10 object-contain rounded-xl border border-stadium-gold/40 p-1 bg-white/90" />
               <span className="text-xs font-black text-stadium-gold uppercase tracking-widest">MIC Club</span>
             </div>
           </div>
