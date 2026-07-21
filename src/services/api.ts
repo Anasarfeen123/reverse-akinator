@@ -1,7 +1,13 @@
 import type { AllowedAnswer } from '../types/game';
 import { type ModelConfig, getActiveApiKey } from './modelConfig';
 
-const API_BASE = 'http://localhost:3001/api';
+const isLocalHost =
+  typeof window !== 'undefined' &&
+  /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+
+const API_BASE =
+  import.meta.env.VITE_API_BASE ||
+  (isLocalHost ? 'http://localhost:3001/api' : '/api');
 
 // ─── Game Start ───────────────────────────────────────────────────────────────
 

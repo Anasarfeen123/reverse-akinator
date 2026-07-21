@@ -53,13 +53,22 @@ export const PROVIDER_MODELS: Record<LLMProvider, { label: string; presets: stri
 const STORAGE_KEY = 'reverse_akinator_model_config';
 
 export function getSavedModelConfig(): ModelConfig {
+  const isProductionSite =
+    typeof window !== 'undefined' &&
+    !['localhost', '127.0.0.1'].includes(window.location.hostname);
+
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      const provider = parsed.provider || 'ollama';
+      const safeProvider = isProductionSite && provider === 'ollama' ? 'puter' : provider;
       return {
-        provider: parsed.provider || 'ollama',
-        model: parsed.model || PROVIDER_MODELS[parsed.provider as LLMProvider]?.defaultModel || 'qwen2.5-coder:7b',
+        provider: safeProvider,
+        model:
+          parsed.model ||
+          PROVIDER_MODELS[safeProvider as LLMProvider]?.defaultModel ||
+          PROVIDER_MODELS.puter.defaultModel,
         apiKeys: parsed.apiKeys || {},
       };
     }
@@ -68,8 +77,8 @@ export function getSavedModelConfig(): ModelConfig {
   }
 
   return {
-    provider: 'ollama',
-    model: 'qwen2.5-coder:7b',
+    provider: isProductionSite ? 'puter' : 'ollama',
+    model: isProductionSite ? PROVIDER_MODELS.puter.defaultModel : 'qwen2.5-coder:7b',
     apiKeys: {},
   };
 }

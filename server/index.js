@@ -196,14 +196,18 @@ app.post('/api/games/:matchId/give-up', (req, res) => {
   });
 });
 
+export default app;
+
 // ─── Start ────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log('');
-  console.log('═══════════════════════════════════════════════');
-  console.log('  Reverse Akinator backend running');
-  console.log(`  http://localhost:${PORT}`);
-  console.log(`  RAG    : ${Object.keys(PLAYER_POOL).length} 100% active FIFA players loaded`);
-  console.log('  Models : Multi-provider (Ollama, Gemini, OpenAI, Anthropic, Groq)');
-  console.log('═══════════════════════════════════════════════');
-  console.log('');
-});
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log('');
+    console.log('═══════════════════════════════════════════════');
+    console.log('  Reverse Akinator backend running');
+    console.log(`  http://localhost:${PORT}`);
+    console.log(`  RAG    : ${Object.keys(PLAYER_POOL).length} 100% active FIFA players loaded`);
+    console.log('  Models : Multi-provider (Ollama, Gemini, OpenAI, Anthropic, Groq)');
+    console.log('═══════════════════════════════════════════════');
+    console.log('');
+  });
+}
