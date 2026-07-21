@@ -220,7 +220,7 @@ export const MatchArena = ({
             </h1>
             <div className="w-px h-5 bg-slate-700 mx-1 hidden sm:block" />
             <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-900 border border-stadium-gold/50 shadow-md">
-              <img src="/mic_logo.png" alt="MIC Club Logo" className="w-7 sm:w-8 h-7 sm:h-8 object-contain rounded-lg border border-stadium-gold/40 p-0.5 bg-slate-950" />
+              <img src="/mic_logo.png" alt="MIC Club Logo" className="w-9 sm:w-10 h-9 sm:h-10 object-contain rounded-xl border border-stadium-gold/40 p-1 bg-white/90" />
               <span className="text-xs font-black text-stadium-gold uppercase tracking-widest">MIC Club</span>
             </div>
           </div>

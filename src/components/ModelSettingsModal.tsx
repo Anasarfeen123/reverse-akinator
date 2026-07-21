@@ -100,7 +100,7 @@ export const ModelSettingsModal: React.FC<ModelSettingsModalProps> = ({
               <div className="flex items-center gap-2.5 p-2 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-lg">
                 <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-9 sm:h-10 w-auto object-contain rounded-lg" />
                 <div className="w-px h-6 bg-slate-700" />
-                <img src="/mic_logo.png" alt="MIC Club Logo" className="w-8 sm:w-10 h-8 sm:h-10 object-contain rounded-xl border border-stadium-gold/40 p-0.5 bg-slate-950" />
+                <img src="/mic_logo.png" alt="MIC Club Logo" className="w-10 sm:w-12 h-10 sm:h-12 object-contain rounded-xl border border-stadium-gold/40 p-1 bg-white/90" />
               </div>
               <div>
                 <h3 className="font-display text-lg sm:text-xl font-bold tracking-wide uppercase text-white">
