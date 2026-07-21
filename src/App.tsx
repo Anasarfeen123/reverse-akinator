@@ -79,20 +79,29 @@ function App() {
                 <img src="/player_7.png" alt="" aria-hidden="true" className="w-full h-full object-contain [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
               </motion.div>
 
-              <div className="w-full max-w-6xl grid lg:grid-cols-[0.95fr_1.05fr] gap-4 sm:gap-6 items-center pointer-events-none">
-                <div className="pointer-events-auto max-w-2xl">
-                  <h1 className="font-display text-[3.3rem] leading-[0.82] sm:text-[5rem] lg:text-[6.3rem] font-black tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 drop-shadow-2xl">
+              <div className="w-full max-w-7xl grid lg:grid-cols-[1.02fr_0.98fr] gap-6 xl:gap-8 items-center pointer-events-none">
+                <div className="pointer-events-auto max-w-3xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start text-center lg:text-left">
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-5 rounded-[2rem] border border-slate-700/80 bg-slate-950/80 px-4 sm:px-6 py-4 shadow-[0_0_30px_rgba(2,6,23,0.22)] backdrop-blur-md">
+                    <div className="rounded-[1.6rem] bg-slate-950 border border-slate-700/80 px-5 py-4 shadow-lg">
+                      <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-16 sm:h-20 md:h-24 w-auto object-contain" />
+                    </div>
+                    <div className="rounded-[1.6rem] bg-white/95 border border-white/80 px-5 py-4 shadow-lg">
+                      <img src="/mic-logo.jpg" alt="MIC Club Logo" className="h-16 sm:h-20 md:h-24 w-auto object-contain" />
+                    </div>
+                  </div>
+
+                  <h1 className="mt-6 font-display text-[3.6rem] leading-[0.82] sm:text-[5.4rem] lg:text-[6.9rem] font-black tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 drop-shadow-2xl">
                     Reverse
                     <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-400 to-stadium-gold">
                       Akinator
                     </span>
                   </h1>
-                  <p className="mt-4 max-w-xl text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed">
+                  <p className="mt-5 max-w-2xl text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed">
                     Strike the ball to start the match and guess the secret player.
                   </p>
-                  <div className="mt-6 inline-flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-950/40 px-4 py-3 backdrop-blur-md text-slate-200">
-                    <Play className="w-4 h-4 text-emerald-300" />
-                    <span className="text-sm font-medium">Drag the ball to kick off.</span>
+                  <div className="mt-6 inline-flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-950/40 px-5 py-4 backdrop-blur-md text-slate-200 shadow-[0_0_24px_rgba(16,185,129,0.14)]">
+                    <Play className="w-5 h-5 text-emerald-300" />
+                    <span className="text-sm sm:text-base font-medium">Drag the ball to kick off.</span>
                   </div>
                 </div>
 
@@ -202,17 +211,9 @@ function App() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[70vw] h-[70vw] max-w-[1000px] max-h-[1000px] bg-radial from-teal-800/20 via-slate-900/5 to-transparent rounded-full pointer-events-none z-0 opacity-80 will-change-transform" />
       <div className="absolute top-[30%] left-[30%] w-[40vw] h-[40vw] max-w-[600px] max-h-[600px] bg-radial from-amber-500/10 via-slate-950/0 to-transparent rounded-full pointer-events-none z-0 opacity-50 will-change-transform" />
 
-      {/* Top Fixed Floating Badges (Only visible on Kickoff screen to prevent overlapping MatchArena header) */}
+      {/* Top Fixed Settings Control (Only visible on Kickoff screen) */}
       {phase === 'KICKOFF' && (
         <>
-          <div className="fixed top-4 left-4 z-50 pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-3xl bg-slate-950/90 border border-slate-700/80 hover:border-stadium-gold/60 backdrop-blur-md shadow-2xl transition">
-            <img src="/reverse_akinator_logo.png" alt="Reverse Akinator Logo" className="h-12 sm:h-14 md:h-16 w-auto object-contain" />
-            <div className="w-px h-9 bg-slate-700" />
-            <div className="flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 shadow-sm border border-white/70">
-              <img src="/mic-logo.jpg" alt="MIC Club Logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain" />
-            </div>
-          </div>
-
           <div className="fixed top-5 right-5 z-50 pointer-events-auto">
             <button
               type="button"
