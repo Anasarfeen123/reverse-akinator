@@ -897,7 +897,7 @@ export async function callLLM({ provider = 'ollama', model, apiKey, systemPrompt
 
   switch (p) {
     case 'puter':
-      return await callPuter({ model: m, systemPrompt, userMessage });
+      return await callPuter({ model: m, apiKey, systemPrompt, userMessage });
     case 'gemini':
       return await callGemini({ model: m, apiKey, systemPrompt, userMessage });
     case 'openai':

@@ -20,6 +20,7 @@ interface LogEntry {
   answer: AllowedAnswer | null;
   confidence?: number;
   isGuessAttempt?: boolean;
+  error?: string;
 }
 
 const getBadgeColorClasses = (answer?: AllowedAnswer | null) => {
@@ -158,8 +159,11 @@ export const MatchArena = ({
         } else {
           setIsThinking(false);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to ask question", error);
+        setLog(prev => prev.map(entry =>
+          entry.id === entryId ? { ...entry, error: error.message || 'Failed to get answer from server' } : entry
+        ));
         setIsThinking(false);
       }
     }
@@ -390,7 +394,12 @@ export const MatchArena = ({
 
                 {/* AI Badge Response */}
                 <div className="self-start flex items-center gap-3 mt-0.5 ml-1">
-                  {entry.answer === null ? (
+                  {entry.error ? (
+                    <div className="flex items-center gap-2 text-rose-400 text-xs px-3 py-1.5 rounded-full bg-rose-950/40 border border-rose-500/30">
+                      <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0 animate-bounce" />
+                      <span>{entry.error}</span>
+                    </div>
+                  ) : entry.answer === null ? (
                     <div className="flex items-center gap-2 text-slate-400 text-xs italic px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 animate-pulse">
                       <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
                       Consulting fact base...
