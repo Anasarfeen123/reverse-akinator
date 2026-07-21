@@ -90,9 +90,9 @@ function App() {
                     </div>
                   </div>
 
-                  <h1 className="mt-6 font-display text-[3.6rem] leading-[0.82] sm:text-[5.4rem] lg:text-[6.9rem] font-black tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 drop-shadow-2xl">
+                  <h1 className="mt-6 font-display text-[3.6rem] leading-[0.82] sm:text-[5.4rem] lg:text-[6.9rem] font-black tracking-tighter uppercase text-white drop-shadow-[0_8px_28px_rgba(0,0,0,0.55)]">
                     Reverse
-                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-400 to-stadium-gold">
+                    <span className="block bg-gradient-to-r from-emerald-300 via-teal-400 to-stadium-gold bg-clip-text text-transparent">
                       Akinator
                     </span>
                   </h1>
