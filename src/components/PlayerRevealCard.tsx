@@ -61,12 +61,6 @@ export const PlayerRevealCard: React.FC<PlayerRevealCardProps> = ({ playerName, 
               {typedName}
             </h2>
           </div>
-          
-          <div className="w-full flex justify-around mt-4 pt-2 border-t border-gold/10 font-display text-sm">
-            <div className="flex flex-col items-center"><span>PAC</span><span className="font-bold text-gold">99</span></div>
-            <div className="flex flex-col items-center"><span>SHO</span><span className="font-bold text-gold">99</span></div>
-            <div className="flex flex-col items-center"><span>PAS</span><span className="font-bold text-gold">99</span></div>
-          </div>
         </div>
       </div>
 
