@@ -26,6 +26,7 @@ Jersey Number: 10
 Career Goals: 850+ professional goals across club and international career (All-time Barcelona top scorer with 672 goals)
 International Team: Argentina (190+ caps, 109+ goals — Argentina all-time top goalscorer & captain)
 Major International Trophies: FIFA World Cup 2022 (Qatar - Golden Ball winner), Copa América 2021 & 2024, Olympic Gold 2008, Finalissima 2022
+FIFA / World Cup Notes: 5 World Cup appearances, 13 World Cup goals, captain of Argentina's 2022 title run, 2022 Golden Ball winner
 Major Club Trophies: 10x La Liga, 7x Copa del Rey, 4x UEFA Champions League (2006, 2009, 2011, 2015), 2x Ligue 1, 1x Leagues Cup
 Ballon d'Or Count: EXACTLY 8 Ballon d'Or awards (2009, 2010, 2011, 2012, 2015, 2019, 2021, 2023) - All-time world record
 Individual Records: Most goals in a calendar year (91 goals in 2012), 6x European Golden Shoe, 8x Pichichi Trophy
@@ -57,6 +58,7 @@ Jersey Number: 7
 Career Goals: 900+ professional goals — all-time top goalscorer in official football history (Real Madrid all-time top scorer with 450 goals in 438 games)
 International Team: Portugal (210+ caps, 135+ goals — all-time top international goalscorer in world history)
 Major International Trophies: UEFA Euro 2016 (France), UEFA Nations League 2019
+FIFA / World Cup Notes: 5 FIFA World Cup appearances for Portugal, best finish quarter-finals in 2006, scored in five separate World Cups
 Major Club Trophies: 5x UEFA Champions League (1 Man Utd 2008, 4 Real Madrid 2014, 2016, 2017, 2018), 3x Premier League, 2x La Liga, 2x Serie A
 Ballon d'Or Count: EXACTLY 5 Ballon d'Or awards (2008, 2013, 2014, 2016, 2017)
 Individual Records: All-time top scorer in UEFA Champions League (140 goals), 4x European Golden Shoe
@@ -88,7 +90,8 @@ Jersey Number: 9
 Career Goals: 250+ professional goals
 International Team: Norway (35+ caps, 35+ goals — Norway top goalscorer)
 Major International Trophies: NONE (Norway has not won major trophies)
-Major Club Trophies: 1x UEFA Champions League (2022/23), 2x Premier League, 1x FA Cup — European Treble Winner with Man City in 2023
+Major Club Trophies: 1x UEFA Champions League (2022/23), 2x Premier League, 1x FA Cup, 1x FIFA Club World Cup (2023) — European Treble Winner with Man City in 2023
+FIFA / World Cup Notes: Won the FIFA Club World Cup with Manchester City in 2023, adding the final piece to the club's treble-era FIFA haul
 Ballon d'Or Count: EXACTLY 0 (Zero) Ballon d'Or awards (Runner-up in 2023)
 Individual Records: Premier League single-season goal record (36 goals in 2022/23), European Golden Shoe 2023, Gerd Müller Trophy 2023
 Key Attributes: Explosive sprint speed (36 km/h), physical power, acrobatic volleying, clinical left-foot finishing
@@ -117,6 +120,7 @@ Current Club: Real Madrid (La Liga, Spain) — since July 2024 (Free transfer)
 Previous Clubs: AS Monaco (2015–2017), Paris Saint-Germain (2017–2024)
 Jersey Number: 9 (Real Madrid), 10 (France National Team)
 Major International Trophies: FIFA World Cup 2018 (France)
+FIFA / World Cup Notes: 2018 World Cup winner as a teenager, 2022 World Cup finalist and Golden Boot winner, one of the few players to score in a World Cup final twice
 Key Attributes: World-class acceleration, lethal dribbling on counterattacks, right-foot curling shots
 Known Facts: Raised in Bondy sub-district of Paris. Joined Real Madrid in summer 2024.
 `.trim()
@@ -214,7 +218,8 @@ Jersey Number: 16
 Career Goals: 30+ goals (scored winning goal in 2023 Champions League Final vs Inter Milan)
 International Team: Spain (55+ caps)
 Major International Trophies: UEFA Euro 2024 (Named Player of the Tournament / Golden Ball), UEFA Nations League 2023
-Major Club Trophies: 1x UEFA Champions League (2022/23), 4x Premier League, 1x FA Cup
+Major Club Trophies: 1x UEFA Champions League (2022/23), 4x Premier League, 1x FA Cup, 1x FIFA Club World Cup (2023)
+FIFA / World Cup Notes: Won the FIFA Club World Cup with Manchester City in 2023 and scored the decisive goal in the Champions League final the same season
 Ballon d'Or Count: EXACTLY 1 Ballon d'Or award (Won 2024 Ballon d'Or)
 Key Attributes: Positional intelligence, breaking up opposition plays, precise long passing, long-range strikes
 Known Facts: Won 2024 Ballon d'Or. Suffered ACL knee injury in late 2024 and returned for 2025/26 season. Does not have social media accounts.
@@ -264,6 +269,7 @@ Jersey Number: 10
 Career Goals: 440+ professional goals
 International Team: Brazil (128 caps, 79 goals — Brazil all-time top goalscorer ahead of Pelé)
 Major International Trophies: Olympic Gold 2016 (Rio de Janeiro), FIFA Confederations Cup 2013
+FIFA / World Cup Notes: Scored in Brazil's infamous 7-1 semifinal loss to Germany in 2014, featured in three World Cups, and became Brazil's all-time top scorer
 Major Club Trophies: 1x UEFA Champions League (Barcelona 2014/15 - MSN treble), 1x Copa Libertadores (Santos 2011), 2x La Liga, 5x Ligue 1
 World Record Transfer: €222 million transfer fee from Barcelona to PSG in August 2017 (most expensive transfer in football history)
 Ballon d'Or Count: EXACTLY 0 (Zero) Ballon d'Or awards (Finished 3rd in 2015 and 2017)
@@ -291,7 +297,9 @@ Jersey Number: 17
 Career Goals: 150+ professional goals & 300+ career assists
 International Team: Belgium (105+ caps)
 Major International Trophies: NONE (3rd place at 2018 World Cup with Belgium Golden Generation)
-Major Club Trophies: 1x UEFA Champions League (Man City 2022/23), 6x Premier League, 2x FA Cup, 1x DFB-Pokal
+FIFA / World Cup Notes: Star of Belgium's 2018 World Cup run, then won the FIFA Club World Cup with Manchester City in 2023
+Major Club Trophies: 1x UEFA Champions League (Man City 2022/23), 6x Premier League, 2x FA Cup, 1x DFB-Pokal, 1x FIFA Club World Cup (2023)
+FIFA / World Cup Notes: Added the FIFA Club World Cup in 2023 to cap City's treble season
 Ballon d'Or Count: EXACTLY 0 (Zero) Ballon d'Or awards (Finished 3rd in 2022)
 Individual Awards: 2x PFA Players' Player of the Year (2020, 2021), 3x Premier League Playmaker of the Season
 Key Attributes: Laser-guided whip crosses, through-balls with millimeter precision, long-range thunderbolts
@@ -317,6 +325,7 @@ Jersey Number: 11
 Career Goals: 330+ professional goals (210+ goals for Liverpool)
 International Team: Egypt (100+ caps, 55+ goals — Egypt all-time top goalscorer)
 Major International Trophies: NONE (2x Africa Cup of Nations runner-up 2017, 2021)
+FIFA / World Cup Notes: Won the FIFA Club World Cup with Liverpool in 2019 and became the face of Egypt at the FIFA World Cup 2018
 Major Club Trophies: 1x UEFA Champions League (Liverpool 2018/19), 1x Premier League (2019/20), 1x FA Cup, 1x FIFA Club World Cup
 Ballon d'Or Count: EXACTLY 0 (Zero) Ballon d'Or awards
 Golden Shoes: 3x Premier League Golden Boot (2017/18, 2018/19, 2021/22)
@@ -369,6 +378,7 @@ Jersey Number: 1
 Career Goals: 0 (Goalkeeper)
 International Team: Germany (124 caps)
 Major International Trophies: FIFA World Cup 2014 (Brazil - Golden Glove winner)
+FIFA / World Cup Notes: Sweeper-keeper icon of Germany's 2014 World Cup win, Golden Glove winner, defined the modern keeper role at FIFA tournaments
 Major Club Trophies: 2x UEFA Champions League (Bayern Munich 2012/13, 2019/20 - both Trebles), 11x Bundesliga, 6x DFB-Pokal
 Ballon d'Or Count: EXACTLY 0 (Zero) Ballon d'Or awards (Finished 3rd in 2014 behind Ronaldo & Messi)
 Key Attributes: Modern "sweeper-keeper" pioneer, rushing out outside penalty box, giant arm-spread saves, long throw starts
@@ -394,6 +404,7 @@ Jersey Number: 10 (Real Madrid, Croatia)
 Career Goals: 80+ goals & 160+ assists
 International Team: Croatia (178+ caps — all-time record for Croatia)
 Major International Trophies: FIFA World Cup 2018 Runner-up (Golden Ball winner), 2022 3rd Place
+FIFA / World Cup Notes: Led Croatia to the 2018 World Cup final and won the Golden Ball, then captained the team to a 2022 third-place finish
 Major Club Trophies: 6x UEFA Champions League (Real Madrid 2014, 2016, 2017, 2018, 2022, 2024), 4x La Liga, 2x Copa del Rey
 Ballon d'Or Count: EXACTLY 1 Ballon d'Or award (Won 2018 Ballon d'Or, breaking Messi-Ronaldo 10-year duopoly)
 Key Attributes: Outside-of-foot trivela passes, press evasion, endless stamina late into matches
@@ -739,6 +750,7 @@ Jersey Number: 19
 Career Goals: 110+ professional goals
 International Team: Argentina (40+ caps, 10+ goals)
 Major International Trophies: FIFA World Cup 2022 (Qatar - scored 4 goals in World Cup), 2x Copa América (2021, 2024)
+FIFA / World Cup Notes: Won the 2022 FIFA World Cup, scored four tournament goals, and completed the rare World Cup + Libertadores + Champions League + Copa América collection
 Major Club Trophies: 1x UEFA Champions League (Man City 2022/23 Treble), 2x Premier League, 1x Copa Libertadores (River Plate 2018) - ONLY player in history to win World Cup, Copa Libertadores, Champions League, and Copa América!
 Ballon d'Or Count: EXACTLY 0 (Zero) Ballon d'Or awards (Finished 7th in 2023)
 Key Attributes: Spider-Man celebration, relentless front-line pressing, two-touch finishing
@@ -788,6 +800,7 @@ Jersey Number: 2
 Career Goals: 40+ goals & 60+ assists from right back
 International Team: Morocco (75+ caps — led Morocco to historic 2022 World Cup semi-finals, 1st African country ever)
 Major International Trophies: NONE (FIFA World Cup 4th place 2022)
+FIFA / World Cup Notes: Key architect of Morocco's 2022 World Cup semi-final run, one of the defining full-backs of the tournament, famous Panenka vs Spain
 Major Club Trophies: 1x UEFA Champions League (Real Madrid 2017/18), 1x Serie A (Inter Milan 2020/21), 3x Ligue 1 (PSG)
 Ballon d'Or Count: EXACTLY 0 (Zero) Ballon d'Or awards
 Key Attributes: Panenka penalty vs Spain in 2022 World Cup, penguin dance celebration, overlap speed on right flank
@@ -812,6 +825,7 @@ Jersey Number: 1
 Career Goals: 0 (Goalkeeper)
 International Team: Belgium (102 caps — 2018 World Cup Golden Glove winner)
 Major International Trophies: NONE (3rd place 2018 World Cup)
+FIFA / World Cup Notes: 2018 World Cup Golden Glove winner, captain of Belgium's Golden Generation, standout keeper in FIFA's biggest stage
 Major Club Trophies: 2x UEFA Champions League (Real Madrid 2021/22 - Man of Match with 9 saves vs Liverpool in final, 2023/24), 3x La Liga, 2x Premier League (Chelsea)
 Ballon d'Or Count: EXACTLY 0 (Zero) Ballon d'Or awards (Yashin Trophy 2022 winner)
 Key Attributes: 2-meter giant height, impossible reaction saves on low shots, command of penalty area
@@ -836,6 +850,7 @@ Jersey Number: 1
 Career Goals: 1 goal (iconic 95th-minute header goal vs West Bromwich Albion in May 2021!)
 International Team: Brazil (70+ caps)
 Major International Trophies: Copa América 2019 (Brazil - Golden Glove winner)
+FIFA / World Cup Notes: Brazil goalkeeper in the 2018 and 2022 World Cup cycles, later added a FIFA Club World Cup title with Liverpool
 Major Club Trophies: 1x UEFA Champions League (Liverpool 2018/19), 1x Premier League (2019/20), 1x FA Cup, 1x FIFA Club World Cup
 Ballon d'Or Count: EXACTLY 0 (Zero) Ballon d'Or awards (Inaugural Yashin Trophy winner 2019, 7th in 2019 Ballon d'Or)
 Key Attributes: 1v1 smothering stance, header goal scorer, quick side-arm counter-attack distributions

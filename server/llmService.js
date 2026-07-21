@@ -247,8 +247,8 @@ function extractAskedCount(question) {
   return null;
 }
 
-function getTrophyCount(playerContext, trophyName) {
-  const trophies = getTagValue(playerContext, 'Major International Trophies').toLowerCase();
+function getTrophyCount(playerContext, tagName, trophyName) {
+  const trophies = getTagValue(playerContext, tagName).toLowerCase();
   if (!trophies || trophies.includes('none')) return 0;
 
   const normalizedTarget = normalizeText(trophyName);
@@ -467,16 +467,27 @@ function evaluateFactDirectly(question, secretPlayer, playerContext) {
   }
 
   // 5. TROPHIES & BALLON D'OR
-  if (/(world cup)/i.test(qClean) && /(won|win|winner|trophy|trophies|title|titles|champion|champions)/i.test(qClean)) {
-    const worldCupCount = getTrophyCount(playerContext, 'world cup');
+  if (/(fifa club world cup|club world cup)/i.test(qClean)) {
+    const clubWorldCupCount = getTrophyCount(playerContext, 'Major Club Trophies', 'fifa club world cup');
+    const askedCount = extractAskedCount(qClean);
+    if (askedCount !== null) {
+      return clubWorldCupCount >= askedCount ? 'Yes' : 'No';
+    }
+    return clubWorldCupCount > 0 ? 'Yes' : 'No';
+  }
+  if (/(fifa world cup|world cup)/i.test(qClean) && /(won|win|winner|trophy|trophies|title|titles|champion|champions)/i.test(qClean)) {
+    const worldCupCount = getTrophyCount(playerContext, 'Major International Trophies', 'world cup');
     const askedCount = extractAskedCount(qClean);
     if (askedCount !== null) {
       return worldCupCount >= askedCount ? 'Yes' : 'No';
     }
     return worldCupCount > 0 ? 'Yes' : 'No';
   }
+  if (/(confederations cup)/i.test(qClean)) {
+    return intlTrophies.includes('confederations cup') ? 'Yes' : 'No';
+  }
   if (/(champions league|ucl)/i.test(qClean)) {
-    const championsLeagueCount = getTrophyCount(playerContext, 'champions league');
+    const championsLeagueCount = getTrophyCount(playerContext, 'Major Club Trophies', 'champions league');
     const askedCount = extractAskedCount(qClean);
     if (askedCount !== null) {
       return championsLeagueCount >= askedCount ? 'Yes' : 'No';
