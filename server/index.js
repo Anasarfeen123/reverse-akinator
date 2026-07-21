@@ -120,7 +120,7 @@ app.post('/api/games/:matchId/question', async (req, res) => {
     session.chatLog.push({ question, answer: badge, confidence });
     console.log(`  A${qNum}: ${badge} (${confidence}% Confidence)`);
 
-    res.json({ status: 'success', ai_badge: badge, confidence, secretPlayer: session.secretPlayer });
+    res.json({ status: 'success', ai_badge: badge, confidence });
   } catch (err) {
     console.error(`  ERROR: ${err.message}`);
     res.status(500).json({ error: 'AI service error', detail: err.message });
@@ -159,16 +159,41 @@ app.post('/api/games/:matchId/guess', async (req, res) => {
       console.log(`  WRONG. Secret player is still: ${session.secretPlayer}`);
     }
 
-    res.json({
+    const payload = {
       status: 'success',
       isCorrect,
-      secretPlayer: session.secretPlayer,
       stats: { attempts: 1 },
-    });
+    };
+
+    if (isCorrect) {
+      payload.secretPlayer = session.secretPlayer;
+    }
+
+    res.json(payload);
   } catch (err) {
     console.error(`  ERROR: ${err.message}`);
     res.status(500).json({ error: 'AI service error', detail: err.message });
   }
+});
+
+// ─── POST /api/games/:matchId/give-up ────────────────────────────────────────
+app.post('/api/games/:matchId/give-up', (req, res) => {
+  const { matchId } = req.params;
+  const session = sessions.get(matchId);
+
+  if (!session) {
+    return res.status(404).json({ error: 'Match not found' });
+  }
+
+  const secretPlayer = session.secretPlayer;
+  sessions.delete(matchId);
+
+  console.log(`  GIVE UP [${matchId}]: revealing ${secretPlayer}`);
+
+  res.json({
+    status: 'success',
+    secretPlayer,
+  });
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────

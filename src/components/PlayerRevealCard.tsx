@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { RotateCcw, Trophy, Sparkles, ArrowLeftCircle } from 'lucide-react';
+import { RotateCcw, Trophy, Sparkles, ArrowLeftCircle, Home } from 'lucide-react';
+import { getPlayerPortraitSrc } from '../services/playerArt';
 
 interface PlayerRevealCardProps {
   playerName: string;
   isWin: boolean;
   onReset: () => void;
+  onGoHome: () => void;
   onBackToChat?: () => void;
 }
 
-export const PlayerRevealCard: React.FC<PlayerRevealCardProps> = ({ playerName, isWin, onReset, onBackToChat }) => {
+export const PlayerRevealCard: React.FC<PlayerRevealCardProps> = ({ playerName, isWin, onReset, onGoHome, onBackToChat }) => {
   const [typedName, setTypedName] = useState('');
 
   useEffect(() => {
@@ -62,10 +64,12 @@ export const PlayerRevealCard: React.FC<PlayerRevealCardProps> = ({ playerName, 
                   </div>
 
                   <div className="flex-1 flex items-center justify-center py-4">
-                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-slate-600/50 bg-slate-700/40 flex items-end justify-center overflow-hidden shadow-inner">
-                      <svg className="w-22 h-22 sm:w-28 sm:h-28 text-slate-400 translate-y-1" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                      </svg>
+                    <div className="w-full max-w-[260px] rounded-[1.4rem] overflow-hidden shadow-2xl border border-white/10">
+                      <img
+                        src={getPlayerPortraitSrc(playerName)}
+                        alt={playerName}
+                        className="block w-full h-full object-cover"
+                      />
                     </div>
                   </div>
 
@@ -121,6 +125,16 @@ export const PlayerRevealCard: React.FC<PlayerRevealCardProps> = ({ playerName, 
               Chat Log
             </motion.button>
           )}
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onGoHome}
+            className="flex items-center gap-3 px-5 py-3 sm:px-6 sm:py-3.5 bg-slate-900 text-slate-200 font-display text-lg sm:text-xl uppercase font-bold rounded-xl shadow-md border border-slate-700 active:translate-y-1 transition-all hover:bg-slate-800"
+          >
+            <Home className="w-5 h-5" />
+            Home
+          </motion.button>
 
           {/* Play Again */}
           <motion.button

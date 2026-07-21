@@ -146,6 +146,14 @@ function App() {
                       </div>
                     </div>
                   </div>
+
+                  <div className="pointer-events-auto rounded-[1.5rem] border border-slate-800/80 bg-slate-950/75 px-4 py-4 backdrop-blur-md shadow-[0_0_24px_rgba(2,6,23,0.25)]">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-slate-500">35-player roster loaded</div>
+                    <div className="mt-1 text-sm font-semibold text-white">No spoilers on the main screen.</div>
+                    <div className="mt-2 text-xs text-slate-400 leading-relaxed">
+                      Kick off the ball to start the interrogation, then reveal one player only at the end of the match.
+                    </div>
+                  </div>
                 </div>
 
                 <div className="pointer-events-auto lg:justify-self-end w-full max-w-2xl">
@@ -217,6 +225,7 @@ function App() {
               <MatchArena
                 matchId={matchId}
                 onMatchEnd={handleMatchEnd}
+                onGoHome={handleReset}
                 isGameOver={phase === 'FULL_TIME'}
                 onViewResult={() => setResultView('result')}
                 modelConfig={modelConfig}
@@ -238,6 +247,7 @@ function App() {
                     playerName={matchResult?.actualPlayer || 'Unknown Player'}
                     isWin={matchResult?.isWin ?? false}
                     onReset={handleReset}
+                    onGoHome={handleReset}
                     onBackToChat={() => setResultView('chat')}
                   />
                 </motion.div>

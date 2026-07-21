@@ -39,7 +39,7 @@ export const askQuestion = async (matchId: string, questionText: string, config?
   });
   if (!response.ok) throw new Error(`askQuestion failed: ${response.status}`);
   const data = await response.json();
-  return data as { status: string; ai_badge: AllowedAnswer; confidence?: number; secretPlayer: string };
+  return data as { status: string; ai_badge: AllowedAnswer; confidence?: number };
 };
 
 // ─── Submit a Guess ───────────────────────────────────────────────────────────
@@ -59,7 +59,25 @@ export const submitGuess = async (matchId: string, guessedName: string, config?:
   });
   if (!response.ok) throw new Error(`submitGuess failed: ${response.status}`);
   const data = await response.json();
-  return data as { status: string; isCorrect: boolean; secretPlayer: string; stats: { attempts: number } };
+  return data as { status: string; isCorrect: boolean; secretPlayer?: string; stats: { attempts: number } };
+};
+
+export const giveUpMatch = async (matchId: string, config?: ModelConfig) => {
+  const payload: Record<string, unknown> = {};
+  if (config) {
+    payload.provider = config.provider;
+    payload.model = config.model;
+    payload.apiKey = getActiveApiKey(config);
+  }
+
+  const response = await fetch(`${API_BASE}/games/${matchId}/give-up`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error(`giveUpMatch failed: ${response.status}`);
+  const data = await response.json();
+  return data as { status: string; secretPlayer: string };
 };
 
 declare global {

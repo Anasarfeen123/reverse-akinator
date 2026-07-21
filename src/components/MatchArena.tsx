@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { HelpCircle, AlertCircle, Loader2, Settings, Cpu, Sparkles, MessageSquare, Zap, Flag } from 'lucide-react';
-import { askQuestion, submitGuess } from '../services/api';
+import { askQuestion, submitGuess, giveUpMatch } from '../services/api';
 import type { AllowedAnswer } from '../types/game';
 import { type ModelConfig, PROVIDER_MODELS } from '../services/modelConfig';
 
 interface MatchArenaProps {
   matchId: string;
   onMatchEnd: (result: { isWin: boolean; actualPlayer?: string }) => void;
+  onGoHome: () => void;
   isGameOver?: boolean;
   onViewResult?: () => void;
   modelConfig?: ModelConfig;
@@ -47,6 +48,7 @@ const SUGGESTED_QUESTIONS = [
 export const MatchArena = ({
   matchId,
   onMatchEnd,
+  onGoHome,
   isGameOver = false,
   onViewResult,
   modelConfig,
@@ -95,12 +97,12 @@ export const MatchArena = ({
         const response = await submitGuess(matchId, trimmed, modelConfig);
         const actual = response.secretPlayer || secretPlayer;
         if (response.isCorrect) {
+          if (response.secretPlayer) setSecretPlayer(response.secretPlayer);
           onMatchEnd({ isWin: true, actualPlayer: actual });
         } else {
           // Wrong guess!
           const newGuessCount = guessCount + 1;
           setGuessCount(newGuessCount);
-          if (response.secretPlayer) setSecretPlayer(response.secretPlayer);
 
           // Log guess attempt with distinctive styling
           const entryId = `guess-${Date.now()}`;
@@ -108,7 +110,16 @@ export const MatchArena = ({
 
           if (newGuessCount >= MAX_GUESSES || questionCount >= MAX_QUESTIONS) {
             setTimeout(() => {
-              onMatchEnd({ isWin: false, actualPlayer: actual });
+              void (async () => {
+                try {
+                  const reveal = await giveUpMatch(matchId, modelConfig);
+                  if (reveal.secretPlayer) setSecretPlayer(reveal.secretPlayer);
+                  onMatchEnd({ isWin: false, actualPlayer: reveal.secretPlayer || secretPlayer });
+                } catch (error) {
+                  console.error('Failed to reveal answer after max guesses', error);
+                  onMatchEnd({ isWin: false, actualPlayer: secretPlayer });
+                }
+              })();
             }, 1500);
           } else {
             setIsThinking(false);
@@ -126,7 +137,6 @@ export const MatchArena = ({
 
       try {
         const response = await askQuestion(matchId, trimmed, modelConfig);
-        if (response.secretPlayer) setSecretPlayer(response.secretPlayer);
 
         setLog(prev => prev.map(entry =>
           entry.id === entryId ? { ...entry, answer: response.ai_badge as AllowedAnswer, confidence: response.confidence } : entry
@@ -134,7 +144,16 @@ export const MatchArena = ({
 
         if (questionCount + 1 >= MAX_QUESTIONS) {
           setTimeout(() => {
-            onMatchEnd({ isWin: false, actualPlayer: response.secretPlayer || secretPlayer });
+            void (async () => {
+              try {
+                const reveal = await giveUpMatch(matchId, modelConfig);
+                if (reveal.secretPlayer) setSecretPlayer(reveal.secretPlayer);
+                onMatchEnd({ isWin: false, actualPlayer: reveal.secretPlayer || secretPlayer });
+              } catch (error) {
+                console.error('Failed to reveal answer after max questions', error);
+                onMatchEnd({ isWin: false, actualPlayer: secretPlayer });
+              }
+            })();
           }, 1500);
         } else {
           setIsThinking(false);
@@ -161,7 +180,16 @@ export const MatchArena = ({
   const currentModelName = modelConfig?.model || 'qwen2.5-coder:7b';
   const handleGiveUp = () => {
     if (isGameOver) return;
-    onMatchEnd({ isWin: false, actualPlayer: secretPlayer });
+    void (async () => {
+      try {
+        const response = await giveUpMatch(matchId, modelConfig);
+        if (response.secretPlayer) setSecretPlayer(response.secretPlayer);
+        onMatchEnd({ isWin: false, actualPlayer: response.secretPlayer || secretPlayer });
+      } catch (error) {
+        console.error('Failed to give up match', error);
+        onMatchEnd({ isWin: false, actualPlayer: secretPlayer });
+      }
+    })();
   };
 
   // Dynamic status phrase for Akinator
@@ -271,10 +299,10 @@ export const MatchArena = ({
             <AlertCircle className="w-4 h-4" /> Full Time — Match Ended
           </span>
           <button
-            onClick={onViewResult}
+            onClick={onGoHome}
             className="text-xs bg-stadium-gold text-slate-950 px-3 py-1 rounded font-bold uppercase tracking-wider hover:bg-yellow-400 transition"
           >
-            View Match Result
+            Home
           </button>
         </div>
       )}
